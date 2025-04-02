@@ -1,4 +1,4 @@
-#Krótkie wprowadzenie do projektu aplikacji wspomagającej kelnera w restauracji opartej o AI
+Krótkie wprowadzenie do projektu aplikacji wspomagającej kelnera w restauracji opartej o AI
 
 W dzisiejszych czasach technologia odgrywa kluczową rolę w branży gastronomicznej. Aplikacja wspomagająca kelnera, oparta na sztucznej inteligencji (AI), ma na celu zwiększenie efektywności obsługi klienta oraz poprawę doświadczeń gości w restauracji.
 
