@@ -3,3 +3,4 @@ Tutaj będą się pojawiały elementy dotyczące bazy danych. Aktualny postęp p
 Baza tworzona na:
 -Microsoft SQL Server 2022
 -Windows 10 Pro x64
+test
