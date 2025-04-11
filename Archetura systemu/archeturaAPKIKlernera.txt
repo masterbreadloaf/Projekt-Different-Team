@@ -1,0 +1,24 @@
+WEB CLIENT
+- wyświetlanie treści
+- prosty sposób komunikacji między użytkownikiem a serwerem/aplikacją
+
+Serwer
+- interfejs do  
+
+Uzytkowinik
+- logowanie
+- weryfikacja
+- autoryzacja 
+
+Logi i raporty
+- logi błędów 
+- raporty nawyków klientów
+- raporty kelnera 
+- zużycie żywności i zapasów 
+ 
+applikacja
+- ogólne przetwarzanie obrazu 
+- rozpoznawanie AI w odniesieniu do klientów
+- system rekomendacji AI (regionalny rodzaj posiłku, specjalistyczne oferty, miejsca siedzące)
+- ogólny system rekomendacji (jak oferta / promocja)
+- funkcja dzielenia rachunków
