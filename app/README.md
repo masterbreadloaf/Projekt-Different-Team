@@ -1,0 +1,1 @@
+To jest folder z właściwą aplikacją
