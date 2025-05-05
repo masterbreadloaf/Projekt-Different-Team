@@ -22,3 +22,11 @@ Baza do zaimportowania do SMSS za pomocą pliku restauracjadb_export.bacpac.
 	-Finish
 
 Po wykonaniu powyższych kroków baza zostanie zaimportowana w całości. Aby usunąć bazę rozwijamy Databases, PPM na naszą bazę i Delete.
+
+-----------------------------------------
+Problem z uruchomieniem SQL Server Agent?
+
+PPM > Właściwości/Properties > Service > Start Mode przełączyć z Disabled na Automatic > Zastosuj/Apply
+
+https://www.youtube.com/watch?v=PM-3LiG5rfQ
+-----------------------------------------
