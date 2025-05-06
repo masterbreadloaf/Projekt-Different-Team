@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>mKelner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+      display: flex;
+    }
+    aside {
+      width: 220px;
+      background: #f1f1f1;
+      padding: 20px;
+      height: 100vh;
+    }
+    aside h2 {
+      margin-top: 0;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    aside nav a {
+      display: block;
+      margin: 10px 0;
+      color: #000;
+      text-decoration: none;
+      padding: 8px;
+      border-radius: 4px;
+    }
+    aside nav a:hover {
+      background-color: #ddd;
+    }
+    aside nav a.active {
+      background-color: #ddd;
+      font-weight: bold;
+    }
+    aside a.logout {
+      display: block;
+      margin-top: 20px;
+      color: #000;
+      text-decoration: none;
+    }
+
+    .main {
+      flex: 1;
+      padding: 20px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .header input {
+      padding: 6px;
+    }
+    .header .filters {
+      display: flex;
+      gap: 10px;
+    }
+    .header .new-client-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .table-card {
+      padding: 20px;
+      border: 2px solid violet;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: bold;
+      background: white;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      text-decoration: none;
+      color: black;
+    }
+    .table-card:hover {
+      transform: scale(1.05);
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <h2>mKelner</h2>
+    <nav>
+      <a href="menu.html">Menu</a>
+      <a href="order.html">Zamówienia</a>
+      <a href="#">Klienci</a>
+      <a href="#">Statystyka</a>
+      <a href="tables.html" class="active">Zarządzanie stolikami</a>
+    </nav>
+    <a href="#" class="logout">Wyloguj się</a>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <h2>Zarządzanie stolikami</h2>
+      <div class="filters">
+        <input type="text" placeholder="Strefa" />
+        <input type="text" placeholder="Wyszukaj stolik" />
+        <button class="new-client-btn">Nowy klient</button>
+      </div>
+    </div>
+    <div class="tables-grid">
+      <!-- Створюємо 12 столиків із переходом -->
+      <a href="order.html?table=1" class="table-card">Stolik 1</a>
+      <a href="order.html?table=2" class="table-card">Stolik 2</a>
+      <a href="order.html?table=3" class="table-card">Stolik 3</a>
+      <a href="order.html?table=4" class="table-card">Stolik 4</a>
+      <a href="order.html?table=5" class="table-card">Stolik 5</a>
+      <a href="order.html?table=6" class="table-card">Stolik 6</a>
+      <a href="order.html?table=7" class="table-card">Stolik 7</a>
+      <a href="order.html?table=8" class="table-card">Stolik 8</a>
+      <a href="order.html?table=9" class="table-card">Stolik 9</a>
+      <a href="order.html?table=10" class="table-card">Stolik 10</a>
+      <a href="order.html?table=11" class="table-card">Stolik 11</a>
+      <a href="order.html?table=12" class="table-card">Stolik 12</a>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>mKelner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+      display: flex;
+    }
+    aside {
+      width: 220px;
+      background: #f1f1f1;
+      padding: 20px;
+      height: 100vh;
+    }
+    aside h2 {
+      margin-top: 0;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    aside nav a {
+      display: block;
+      margin: 10px 0;
+      color: #000;
+      text-decoration: none;
+      padding: 8px;
+      border-radius: 4px;
+    }
+    aside nav a:hover {
+      background-color: #ddd;
+    }
+    aside nav a.active {
+      background-color: #ddd;
+      font-weight: bold;
+    }
+    aside a.logout {
+      display: block;
+      margin-top: 20px;
+      color: #000;
+      text-decoration: none;
+      padding: 8px;
+      border-radius: 4px;
+    }
+    aside a.logout:hover {
+      background-color: #ddd;
+    }
+    .tables button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .tables button:hover {
+      opacity: 0.9;
+    }
+
+    .main {
+      flex: 1;
+      padding: 20px;
+    }
+    .order-section {
+      display: flex;
+      gap: 20px;
+    }
+    .menu-section, .client-section {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      flex: 1;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .tabs button {
+      margin: 5px 5px 10px 0;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      background: #f1f1f1;
+      cursor: pointer;
+    }
+    .tabs button:hover {
+      background: #ddd;
+    }
+    .menu-items p {
+      margin: 8px 0;
+      padding: 5px;
+    }
+    .menu-items p:hover {
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+    .order-summary {
+      margin-top: 20px;
+      background: #fff3cd;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .recommendation {
+      color: green;
+      margin-top: 15px;
+      font-style: italic;
+    }
+    .send-button {
+      margin-top: 15px;
+      background: #0d6efd;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+    .send-button:hover {
+      background: #0b5ed7;
+    }
+    input, select {
+      margin-bottom: 15px;
+      padding: 8px;
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    button.add-to-order {
+      margin-top:15px;
+      background: #28a745;
+      color:white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button.add-to-order:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <h2>mKelner</h2>
+    <nav>
+      <a href="menu.html">Menu</a>
+      <a href="order.html" class="active">Zamówienia</a>
+      <a href="#">Klienci</a>
+      <a href="#">Statystyka</a>
+      <a href="tables.html">Zarządzanie stolikami</a>
+    </nav>
+    
+    <div class="tables">
+      <button style="background:#d4edda">Stół 1 - Wolny</button>
+      <button style="background:#fff3cd">Stół 2 - Oczekuje</button>
+      <button style="background:#d4edda">Stół 3 - Gotowy</button>
+      <button style="background:#d4edda">Stół 4 - Wolny</button>
+      <button style="background:#f8d7da">Stół 5 - Problem</button>
+      <button style="background:#d4edda">Stół 6 - Wolny</button>
+    </div>
+    
+    <a href="#" class="logout">Wyloguj się</a>
+  </aside>
+
+  <main class="main">
+    <h2>Nowe zamówienie</h2>
+    <div class="order-section">
+      <div class="menu-section">
+        <div class="tabs">
+          <button>Przystawki</button>
+          <button>Dania główne</button>
+          <button>Napoje</button>
+          <button>Desery</button>
+        </div>
+        <div class="menu-items">
+          <p>X - X PLN (X min)</p>
+          <p>X - X PLN (X min)</p>
+          <p>X - X PLN (X min)</p>
+          <p>X - X PLN (X min)</p>
+        </div>
+        <button class="add-to-order">Dodaj do zamówienia</button>
+
+        <div class="order-summary">
+          <p>1x X - X PLN</p>
+          <p>1x X - X PLN</p>
+          <p>Czas: X min</p>
+          <p>Suma: X PLN</p>
+        </div>
+
+        <button class="send-button">Wyślij do kuchni</button>
+      </div>
+
+      <div class="client-section">
+        <h3>Dane klienta</h3>
+        <label>Płeć:
+          <select id="gender">
+            <option value="kobieta">Kobieta</option>
+            <option value="mężczyzna">Mężczyzna</option>
+          </select>
+        </label>
+        <label>Wiek:
+          <input type="number" id="age" value="25"/>
+        </label>
+        <label>Alergeny:
+          <input type="text" id="allergies" value="orzechy, gluten"/>
+        </label>
+        <p class="recommendation">Polecamy: <strong>X</strong></p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
