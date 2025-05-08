@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>mKelner</title>
+  <link rel="stylesheet" href="../static/css/css.css">
+</head>
+<body>
+  <aside>
+    <h2>mKelner</h2>
+    <nav>
+      <a href="menu.html" class="active">Menu</a>
+      <a href="order.html">Zamówienia</a>
+      <a href="clients.html">Klienci</a>
+      <a href="statistics.html">Statystyka</a>
+      <a href="tables.html">Zarządzanie stolikami</a>
+    </nav>
+
+    <div class="tables">
+      <button style="background:#d4edda">Stół 1 - Wolny</button>
+      <button style="background:#fff3cd">Stół 2 - Oczekuje</button>
+      <button style="background:#d4edda">Stół 3 - Gotowy</button>
+      <button style="background:#d4edda">Stół 4 - Wolny</button>
+    </div>
+
+    <a href="#" class="logout">Wyloguj się</a>
+  </aside>
+
+  <main class="main">
+    <h1>Menu restauracji</h1>
+
+    <div class="menu-tabs">
+      <button class="menu-tab active" onclick="showCategory(event, 'przystawki')">Przystawki</button>
+      <button class="menu-tab" onclick="showCategory(event, 'zupy')">Zupy</button>
+      <button class="menu-tab" onclick="showCategory(event, 'sałatki')">Sałatki</button>
+      <button class="menu-tab" onclick="showCategory(event, 'makarony')">Makarony</button>
+      <button class="menu-tab" onclick="showCategory(event, 'pizze')">Pizze</button>
+      <button class="menu-tab" onclick="showCategory(event, 'dania główne')">Dania główne</button>
+      <button class="menu-tab" onclick="showCategory(event, 'burgery')">Burgery</button>
+      <button class="menu-tab" onclick="showCategory(event, 'desery')">Desery</button>
+      <button class="menu-tab" onclick="showCategory(event, 'napoje')">Napoje</button>
+    </div>
+
+    {% for category, items in menu.items() %}
+    <div class="menu-category" id="{{ category|lower }}" style="display: {{ 'block' if loop.first else 'none' }};">
+      <h2>{{ category.capitalize() }}</h2>
+      <div class="menu-items">
+        {% for item in items %}
+        <div class="menu-item">
+          <img src="{{ item.image }}" alt="{{ item.name }}">
+          <div class="menu-item-content">
+            <h3>{{ item.name }}</h3>
+            <p>{{ item.description }}</p>
+            <p class="menu-item-price">{{ item.price }} PLN</p>
+            <p class="menu-item-time">Czas przygotowania: {{ item.prep_time }} min</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </main>
+
+  <script>
+    function showCategory(event, categoryId) {
+      document.querySelectorAll('.menu-category').forEach(cat => cat.style.display = 'none');
+      const target = document.getElementById(categoryId.toLowerCase());
+      if (target) target.style.display = 'block';
+      document.querySelectorAll('.menu-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>

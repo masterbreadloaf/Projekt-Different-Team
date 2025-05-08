@@ -41,6 +41,49 @@ Do instalacji i napisania:
 	flask, pyodbc, python-dotenv (pip install flask pyodbc python-dotenv)
 -do napisania db.py
 
+
+Dane poniżej dotyczą katalogu app\
+
+Tworzenie wirtualnego środowiska python:
+python -m venv venv | Jeśli chcemy stworzyć nowe. Jest dodane przeze mnie do folderu
+
+venv\Scripts\activate
+
+Instalacja bibliotek:
+pip install -r requirements.txt | Jeśli nie chcecie instalować z szablonu, w pliku requirements są wymagane wersje bibliotek.
+
+Jeśli nie mamy, pobieramy ODBC w wersji 17 ze strony. Jeśli mamy, wystarczy skonfigurować.
+https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver16#download-for-windows
+
+Konfiguracja ODBC:
+1. Wchodzimy w ODBC 64bit
+2. Systemowe DSN (2 zakładka)
+3. Dodaj
+4. ODBC Driver 2017 for SQL Server
+5. Name: restauracjadb
+   SQL Server: localhost | może być nazwa urządzenia w Windowsie 
+6. Integrated Windows authentication 
+7. Change default database to: restauracjadb (reszta domyślnie)
+8. Test Data Source (u mnie wyskoczyło okno 
+		"Microsoft ODBC Driver for SQL Server Version 17.10.0006
+
+		Running connectivity tests...
+
+		Attempting connection
+		Connection established
+		Verifying option settings
+		Disconnecting from server
+
+		TESTS COMPLETED SUCCESSFULLY!"
+
+Sprawdzamy połączenie uruchamiając skrypt test.py z katalogu /app. Jeśli wszystko działa, to komunikat == "Połączono z bazą danych!"
+
+Instalujemy bibliotekę python-dotenv-1.1.0
+pip install python-dotenv
+
+Instalujemy Flaska
+pip install Flask
+
 -----------------------------------------
 Proponowana struktura plików:
 
@@ -94,7 +137,7 @@ restaurant_app/ - Główna struktura aplikacji restauracyjnej opartej na Flask, 
 
 ├── static/
 │   ├── css/
-│   │   └── styles.css - Własne style (opcjonalnie przy Bootstrapie).
+│   │   └── css.css - Własne style (opcjonalnie przy Bootstrapie).
 │   └── js/
 │       └── scripts.js - Skrypty JavaScript (np. dynamiczne akcje).
 

@@ -1,0 +1,296 @@
+/* Podstawowe style dla całej aplikacji */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f9f9f9;
+  display: flex;
+}
+
+/* Panel boczny */
+aside {
+  width: 220px;
+  background: #f1f1f1;
+  padding: 20px;
+  height: 100vh;
+  position: fixed;
+}
+
+aside h2 {
+  margin-top: 0;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+aside nav a {
+  display: block;
+  margin: 10px 0;
+  color: #000;
+  text-decoration: none;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+aside nav a:hover {
+  background-color: #ddd;
+}
+
+aside nav a.active {
+  background-color: #ddd;
+  font-weight: bold;
+}
+
+aside a.logout {
+  display: block;
+  margin-top: 20px;
+  color: #000;
+  text-decoration: none;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+aside a.logout:hover {
+  background-color: #ddd;
+}
+
+/* Stoliki w menu bocznym */
+.tables button {
+  width: 100%;
+  margin: 8px 0;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.tables button:hover {
+  opacity: 0.9;
+}
+
+/* Główna zawartość */
+.main {
+  flex: 1;
+  padding: 20px;
+  margin-left: 260px;
+}
+
+/* Style dla menu.html */
+.menu-category {
+  margin-bottom: 30px;
+}
+
+.menu-category h2 {
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.menu-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.menu-item {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.menu-item:hover {
+  transform: translateY(-5px);
+}
+
+.menu-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.menu-item-content {
+  padding: 15px;
+}
+
+.menu-item h3 {
+  margin: 0 0 10px 0;
+}
+
+.menu-item p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.menu-item-price {
+  font-weight: bold;
+  color: #28a745;
+  font-size: 1.2em;
+}
+
+.menu-item-time {
+  color: #6c757d;
+}
+
+.menu-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.menu-tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: 16px;
+}
+
+.menu-tab.active {
+  border-bottom: 3px solid #28a745;
+  font-weight: bold;
+}
+
+/* Style dla order.html */
+.order-section {
+  display: flex;
+  gap: 20px;
+}
+
+.menu-section, .client-section {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  flex: 1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tabs button {
+  margin: 5px 5px 10px 0;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  background: #f1f1f1;
+  cursor: pointer;
+}
+
+.tabs button:hover {
+  background: #ddd;
+}
+
+.menu-items p {
+  margin: 8px 0;
+  padding: 5px;
+}
+
+.menu-items p:hover {
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.order-summary {
+  margin-top: 20px;
+  background: #fff3cd;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.recommendation {
+  color: green;
+  margin-top: 15px;
+  font-style: italic;
+}
+
+.send-button {
+  margin-top: 15px;
+  background: #0d6efd;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.send-button:hover {
+  background: #0b5ed7;
+}
+
+input, select {
+  margin-bottom: 15px;
+  padding: 8px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+button.add-to-order {
+  margin-top: 15px;
+  background: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+}
+
+button.add-to-order:hover {
+  background: #218838;
+}
+
+/* Style dla tables.html */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header input {
+  padding: 6px;
+}
+
+.header .filters {
+  display: flex;
+  gap: 10px;
+}
+
+.header .new-client-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.tables-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.table-card {
+  padding: 20px;
+  border: 2px solid violet;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+  background: white;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  text-decoration: none;
+  color: black;
+}
+
+.table-card:hover {
+  transform: scale(1.05);
+  background-color: #f0f0f0;
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>mKelner</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/css.css') }}">
+</head>
+<body>
+  <aside>
+    <h2>mKelner</h2>
+    <nav>
+      <a href="{{ url_for('menu') }}">Menu</a>
+      <a href="{{ url_for('order') }}">Zamówienia</a>
+      <a href="{{ url_for('clients') }}">Klienci</a>
+      <a href="{{ url_for('statistics') }}">Statystyka</a>
+      <a href="{{ url_for('tables') }}" class="active">Zarządzanie stolikami</a>
+    </nav>
+    <a href="#" class="logout">Wyloguj się</a>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <h2>Zarządzanie stolikami</h2>
+      <div class="filters">
+        <input type="text" placeholder="Strefa" />
+        <input type="text" placeholder="Wyszukaj stolik" />
+        <button class="new-client-btn">Nowy klient</button>
+      </div>
+    </div>
+    <div class="tables-grid">
+      <!-- 12 stolików z przekierowaniem -->
+      <a href="{{ url_for('order', table=1) }}" class="table-card">Stolik 1</a>
+      <a href="{{ url_for('order', table=2) }}" class="table-card">Stolik 2</a>
+      <a href="{{ url_for('order', table=3) }}" class="table-card">Stolik 3</a>
+      <a href="{{ url_for('order', table=4) }}" class="table-card">Stolik 4</a>
+      <a href="{{ url_for('order', table=5) }}" class="table-card">Stolik 5</a>
+      <a href="{{ url_for('order', table=6) }}" class="table-card">Stolik 6</a>
+      <a href="{{ url_for('order', table=7) }}" class="table-card">Stolik 7</a>
+      <a href="{{ url_for('order', table=8) }}" class="table-card">Stolik 8</a>
+      <a href="{{ url_for('order', table=9) }}" class="table-card">Stolik 9</a>
+      <a href="{{ url_for('order', table=10) }}" class="table-card">Stolik 10</a>
+      <a href="{{ url_for('order', table=11) }}" class="table-card">Stolik 11</a>
+      <a href="{{ url_for('order', table=12) }}" class="table-card">Stolik 12</a>
+    </div>
+  </main>
+</body>
+</html>

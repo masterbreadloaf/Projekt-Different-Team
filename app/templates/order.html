@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>mKelner</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/css.css') }}">
+</head>
+<body>
+  <aside>
+    <h2>mKelner</h2>
+    <nav>
+      <a href="{{ url_for('menu') }}">Menu</a>
+      <a href="{{ url_for('order') }}" class="active">Zamówienia</a>
+      <a href="{{ url_for('clients') }}">Klienci</a>
+      <a href="{{ url_for('statistics') }}">Statystyka</a>
+      <a href="{{ url_for('tables') }}">Zarządzanie stolikami</a>
+    </nav>
+    
+    <div class="tables">
+      <button style="background:#d4edda">Stół 1 - Wolny</button>
+      <button style="background:#fff3cd">Stół 2 - Oczekuje</button>
+      <button style="background:#d4edda">Stół 3 - Gotowy</button>
+      <button style="background:#d4edda">Stół 4 - Wolny</button>
+      <button style="background:#f8d7da">Stół 5 - Problem</button>
+      <button style="background:#d4edda">Stół 6 - Wolny</button>
+    </div>
+    
+    <a href="#" class="logout">Wyloguj się</a>
+  </aside>
+
+  <main class="main">
+    <h2>Nowe zamówienie</h2>
+    <div class="order-section">
+      <div class="menu-section">
+        <div class="tabs">
+          <button>Przystawki</button>
+          <button>Dania główne</button>
+          <button>Napoje</button>
+          <button>Desery</button>
+        </div>
+        <div class="menu-items">
+          <p>X - X PLN (X min)</p>
+          <p>X - X PLN (X min)</p>
+          <p>X - X PLN (X min)</p>
+          <p>X - X PLN (X min)</p>
+        </div>
+        <button class="add-to-order">Dodaj do zamówienia</button>
+
+        <div class="order-summary">
+          <p>1x X - X PLN</p>
+          <p>1x X - X PLN</p>
+          <p>Czas: X min</p>
+          <p>Suma: X PLN</p>
+        </div>
+
+        <button class="send-button">Wyślij do kuchni</button>
+      </div>
+
+      <div class="client-section">
+        <h3>Dane klienta</h3>
+        <label>Płeć:
+          <select id="gender">
+            <option value="kobieta">Kobieta</option>
+            <option value="mężczyzna">Mężczyzna</option>
+          </select>
+        </label>
+        <label>Wiek:
+          <input type="number" id="age" value="25"/>
+        </label>
+        <label>Alergeny:
+          <input type="text" id="allergies" value="orzechy, gluten"/>
+        </label>
+        <p class="recommendation">Polecamy: <strong>X</strong></p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
