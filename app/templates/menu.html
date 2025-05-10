@@ -10,11 +10,11 @@
   <aside>
     <h2>mKelner</h2>
     <nav>
-      <a href="menu.html" class="active">Menu</a>
-      <a href="order.html">Zamówienia</a>
-      <a href="clients.html">Klienci</a>
-      <a href="statistics.html">Statystyka</a>
-      <a href="tables.html">Zarządzanie stolikami</a>
+      <a href="{{ url_for('menu_page') }}" class="active">Menu</a>
+      <a href="{{ url_for('order_page') }}">Zamówienia</a>
+      <a href="{{ url_for('clients_page') }}">Klienci</a>
+      <a href="{{ url_for('stats_page') }}">Statystyka</a>
+      <a href="{{ url_for('tables_page') }}">Zarządzanie stolikami</a>
     </nav>
 
     <div class="tables">

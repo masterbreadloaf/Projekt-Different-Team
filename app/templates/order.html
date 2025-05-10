@@ -3,77 +3,320 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>mKelner</title>
+  <title>mKelner – Nowe zamówienie</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/css.css') }}">
+  <style>
+    .order-wrapper { display: flex; gap: 20px; padding: 0 30px; }
+    .category-tabs { flex: 0 0 15%; display: flex; flex-direction: column; gap: 5px; }
+    .category-tab { padding: 10px; cursor: pointer; background: #eee; border: none; text-align: left; }
+    .category-tab.active { font-weight: bold; background: #ddd; }
+    .menu-display { flex: 0 0 55%; }
+    .menu-category { display: none; }
+    .menu-category.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+    .menu-item { border: 1px solid #ccc; padding: 10px; background: #fff; cursor: pointer; }
+    .order-summary { background-color: #fff8dc; padding: 10px; margin-bottom: 20px; }
+    .right-panel { flex: 0 0 30%; display: flex; flex-direction: column; gap: 20px; }
+    .client-section { background: #f9f9f9; padding: 10px; border: 1px solid #ccc; }
+    .success-message { background: #d4edda; padding: 10px; color: #155724; margin-top: 10px; display: none; }
+    .tables { margin-top: 20px; display: flex; flex-direction: column; gap: 5px; }
+    .tables button { padding: 5px 10px; border: none; cursor: pointer; }
+    .stol-op { background-color: #fff3cd; }
+    .stol-oj { background-color: #d1ecf1; }
+    .stol-re { background-color: #f8d7da; }
+    .stol-wolny { background-color: #d4edda; }
+    .client-section input,
+    .client-section select { width: 100%; box-sizing: border-box; }
+    .info-red { color: #b00020; font-weight: bold; }
+  </style>
 </head>
 <body>
   <aside>
     <h2>mKelner</h2>
     <nav>
-      <a href="{{ url_for('menu') }}">Menu</a>
-      <a href="{{ url_for('order') }}" class="active">Zamówienia</a>
-      <a href="{{ url_for('clients') }}">Klienci</a>
-      <a href="{{ url_for('statistics') }}">Statystyka</a>
-      <a href="{{ url_for('tables') }}">Zarządzanie stolikami</a>
+      <a href="{{ url_for('menu_page') }}">Menu</a>
+      <a href="{{ url_for('order_page') }}" class="active">Zamówienia</a>
+      <a href="{{ url_for('clients_page') }}">Klienci</a>
+      <a href="{{ url_for('stats_page') }}">Statystyka</a>
+      <a href="{{ url_for('tables_page') }}">Zarządzanie stolikami</a>
     </nav>
-    
-    <div class="tables">
-      <button style="background:#d4edda">Stół 1 - Wolny</button>
-      <button style="background:#fff3cd">Stół 2 - Oczekuje</button>
-      <button style="background:#d4edda">Stół 3 - Gotowy</button>
-      <button style="background:#d4edda">Stół 4 - Wolny</button>
-      <button style="background:#f8d7da">Stół 5 - Problem</button>
-      <button style="background:#d4edda">Stół 6 - Wolny</button>
-    </div>
-    
-    <a href="#" class="logout">Wyloguj się</a>
+
+    <div class="tables" id="sideTables"></div>
   </aside>
 
   <main class="main">
-    <h2>Nowe zamówienie</h2>
-    <div class="order-section">
-      <div class="menu-section">
-        <div class="tabs">
-          <button>Przystawki</button>
-          <button>Dania główne</button>
-          <button>Napoje</button>
-          <button>Desery</button>
-        </div>
-        <div class="menu-items">
-          <p>X - X PLN (X min)</p>
-          <p>X - X PLN (X min)</p>
-          <p>X - X PLN (X min)</p>
-          <p>X - X PLN (X min)</p>
-        </div>
-        <button class="add-to-order">Dodaj do zamówienia</button>
+    <h1>Nowe zamówienie</h1>
 
-        <div class="order-summary">
-          <p>1x X - X PLN</p>
-          <p>1x X - X PLN</p>
-          <p>Czas: X min</p>
-          <p>Suma: X PLN</p>
-        </div>
+    <label for="tableSelect"><strong>Stolik:</strong></label>
+    <select id="tableSelect"></select>
 
-        <button class="send-button">Wyślij do kuchni</button>
+    <div class="order-wrapper">
+      <div class="category-tabs">
+        {% for category, items in menu.items() %}
+        <button class="category-tab {% if loop.first %}active{% endif %}" onclick="showCategory(event, '{{ category|lower }}')">
+          {{ category.capitalize() }}
+        </button>
+        {% endfor %}
       </div>
 
-      <div class="client-section">
-        <h3>Dane klienta</h3>
-        <label>Płeć:
-          <select id="gender">
-            <option value="kobieta">Kobieta</option>
-            <option value="mężczyzna">Mężczyzna</option>
-          </select>
-        </label>
-        <label>Wiek:
-          <input type="number" id="age" value="25"/>
-        </label>
-        <label>Alergeny:
-          <input type="text" id="allergies" value="orzechy, gluten"/>
-        </label>
-        <p class="recommendation">Polecamy: <strong>X</strong></p>
+      <div class="menu-display">
+        {% for category, items in menu.items() %}
+        <div class="menu-category {% if loop.first %}active{% endif %}" id="{{ category|lower }}">
+          {% for item in items %}
+          <div class="menu-item" onclick="addToOrder({{ item.id }}, '{{ item.name }}', {{ item.price }}, {{ item.prep_time }})">
+            <img src="{{ item.image }}" alt="{{ item.name }}">
+            <div><strong>{{ item.name }}</strong></div>
+            <div>{{ item.price }} PLN / {{ item.prep_time }} min</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="right-panel">
+        <div class="order-summary">
+          <h3>Zamówienie</h3>
+          <ul id="orderList"></ul>
+          <p><strong>Suma:</strong> <span id="totalAmount">0</span> PLN</p>
+          <p><strong>Czas przygotowania:</strong> <span id="totalTime">0</span> min</p>
+
+          <button id="submitOrder">Wyślij do kuchni</button>
+          <button id="markPaid" style="display:none">✅ Oznacz jako opłacone</button>
+
+          <button id="reserveButton" style="display:none" onclick="updateStatus(tableSelect.value, 'RE')">
+            📌 Zarezerwuj stolik
+          </button>
+          <button id="releaseReservation" style="display:none" onclick="confirmRelease()">
+            🔁 Zwolnij rezerwację
+          </button>
+
+
+          <button id="markPaid" onclick="markAsPaid()" style="display: none; background-color: #c3e6cb;">
+            ✅ Oznacz jako opłacone
+          </button>
+
+
+
+          <div class="success-message" id="successMessage">Zamówienie wysłane!</div>
+          <p id="tableNote" class="info-red"></p>
+        </div>
+
+        <div class="client-section">
+          <h3>Dane klienta</h3>
+          <label>Płeć:
+            <select><option>Kobieta</option><option>Mężczyzna</option></select>
+          </label><br><br>
+          <label>Wiek: <input type="number" value="30"></label><br><br>
+          <label>Alergeny:</label>
+          <div id="allergyList"></div>
+          <p class="recommendation">Polecamy: <strong>–</strong></p>
+        </div>
       </div>
     </div>
   </main>
+
+  <script>
+    let order = [];
+    let currentOrderId = null;
+
+    function showCategory(event, id) {
+      document.querySelectorAll('.menu-category').forEach(c => c.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function addToOrder(id, name, price, prep_time) {
+      const existing = order.find(i => i.id === id);
+      if (existing) {
+        existing.qty += 1;
+        existing.total_price += price;
+      } else {
+        order.push({ id, name, price, prep_time, qty: 1, total_price: price });
+      }
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const list = document.getElementById('orderList');
+      const amount = document.getElementById('totalAmount');
+      const time = document.getElementById('totalTime');
+      list.innerHTML = '';
+      let total = 0, prep = 0;
+      order.forEach(item => {
+        const li = document.createElement('li');
+        li.innerText = `${item.qty}x ${item.name} – ${item.total_price.toFixed(2)} PLN`;
+        list.appendChild(li);
+        total += item.total_price;
+        prep += item.prep_time;
+      });
+      amount.innerText = total.toFixed(2);
+      time.innerText = prep;
+    }
+    function confirmRelease() {
+    const tableId = document.getElementById('tableSelect').value;
+      if (confirm("Czy na pewno chcesz zwolnić rezerwację tego stolika?")) {
+        updateStatus(tableId, 'wolny');
+      }
+    }
+
+
+    document.getElementById('submitOrder').onclick = async () => {
+      const tableId = parseInt(document.getElementById('tableSelect').value);
+      const payload = {
+        table_id: tableId,
+        items: order,
+        total: parseFloat(document.getElementById('totalAmount').innerText),
+        prep_time: parseInt(document.getElementById('totalTime').innerText)
+      };
+      const res = await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        order = [];
+        updateSummary();
+        currentOrderId = data.order_id;
+        document.getElementById('markPaid').style.display = 'block';
+        document.getElementById('successMessage').style.display = 'block';
+        loadTables(); // odśwież dane
+      }
+    };
+
+    document.getElementById('markPaid').onclick = async () => {
+      if (!currentOrderId) return;
+      await fetch(`/api/orders/pay/${currentOrderId}`, { method: 'POST' });
+      alert("Zamówienie opłacone. Stolik zwolniony.");
+      location.reload();
+    };
+
+    async function loadTables() {
+      const res = await fetch('/api/tables');
+      const data = await res.json();
+      const select = document.getElementById('tableSelect');
+      const side = document.getElementById('sideTables');
+      select.innerHTML = '';
+      side.innerHTML = '';
+
+      const statusMap = {
+        'OP': 'Oczekuje na płatność',
+        'OJ': 'Oczekuje na jedzenie',
+        'RE': 'Zarezerwowany',
+        'wolny': 'Wolny'
+      };
+      const statusClass = {
+        'OP': 'stol-op',
+        'OJ': 'stol-oj',
+        'RE': 'stol-re',
+        'wolny': 'stol-wolny'
+      };
+
+      data.forEach(stol => {
+        const opt = document.createElement('option');
+        opt.value = stol.id;
+        opt.textContent = `Stół ${stol.number} – ${statusMap[stol.status]}`;
+        opt.className = statusClass[stol.status];
+        select.appendChild(opt);
+
+        const btn = document.createElement('button');
+        btn.textContent = `Stół ${stol.number} – ${statusMap[stol.status]}`;
+        btn.className = statusClass[stol.status];
+        btn.onclick = () => handleTableClick(stol.id, stol.status);
+        side.appendChild(btn);
+      });
+    }
+
+  async function handleTableClick(id, status) {
+    document.getElementById('tableSelect').value = id;
+    const note = document.getElementById('tableNote');
+    const summary = document.getElementById('orderList');
+    const total = document.getElementById('totalAmount');
+    const time = document.getElementById('totalTime');
+    const markPaidBtn = document.getElementById('markPaid');
+    const reserveBtn = document.getElementById('reserveButton');
+    const releaseBtn = document.getElementById('releaseReservation');
+
+    note.textContent = '';
+    markPaidBtn.style.display = 'none';
+    reserveBtn.style.display = 'none';
+    releaseBtn.style.display = 'none';
+    summary.innerHTML = '';
+    total.textContent = '0';
+    time.textContent = '0';
+
+    if (status === 'RE') {
+      note.innerHTML = "🔴 <strong>Stolik zarezerwowany</strong> – możesz złożyć zamówienie.";
+      releaseBtn.style.display = 'block';
+      return;
+    }
+
+    if (status === 'wolny') {
+      reserveBtn.style.display = 'block';
+      return;
+    }
+
+    if (status === 'OJ' || status === 'OP') {
+      const res = await fetch(`/api/orders/last/${id}`);
+      const data = await res.json();
+
+      const summary = document.getElementById('orderList');
+      const total = document.getElementById('totalAmount');
+      const time = document.getElementById('totalTime');
+
+      summary.innerHTML = '';
+      let totalSum = 0;
+      let prepTime = 0;
+
+      data.items.forEach(i => {
+        const row = document.createElement('li');
+        row.innerText = `${i.qty}x ${i.name} – ${i.total.toFixed(2)} PLN`;
+        summary.appendChild(row);
+        totalSum += i.total;
+        prepTime += i.qty * i.prep_time;
+      });
+
+      total.innerText = totalSum.toFixed(2);
+      time.innerText = prepTime;
+
+      currentOrderId = data.id;
+      document.getElementById('markPaid').style.display = 'block';
+      return;
+    }
+  }
+
+
+  async function updateStatus(tableId, newStatus) {
+  await fetch(`/api/tables/${tableId}/status`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: newStatus })
+  });
+  location.reload();
+  }
+
+  async function markAsPaid() {
+  if (!currentOrderId) return;
+  await fetch(`/api/orders/pay/${currentOrderId}`, {
+    method: 'POST'
+  });
+  location.reload();
+  }
+
+    async function loadAlergeny() {
+      const res = await fetch('/api/alergeny');
+      const data = await res.json();
+      const list = document.getElementById('allergyList');
+      list.innerHTML = '';
+      data.forEach(al => {
+        const checkbox = document.createElement('label');
+        checkbox.innerHTML = `<input type="checkbox" name="alergeny" value="${al}"> ${al}<br>`;
+        list.appendChild(checkbox);
+      });
+    }
+
+    loadTables();
+    loadAlergeny();
+  </script>
 </body>
 </html>

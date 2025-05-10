@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="../static/css/css.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>mKelner</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+      display: flex;
+    }
+    aside {
+      width: 220px;
+      background: #f1f1f1;
+      padding: 20px;
+      height: 100vh;
+      position: fixed;
+    }
+    aside h2 {
+      margin-top: 0;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    aside nav a {
+      display: block;
+      margin: 10px 0;
+      color: #000;
+      text-decoration: none;
+      padding: 8px;
+      border-radius: 4px;
+    }
+    aside nav a:hover {
+      background-color: #ddd;
+    }
+    aside nav a.active {
+      background-color: #ddd;
+      font-weight: bold;
+    }
+    aside a.logout {
+      display: block;
+      margin-top: 20px;
+      color: #000;
+      text-decoration: none;
+      padding: 8px;
+      border-radius: 4px;
+    }
+    aside a.logout:hover {
+      background-color: #ddd;
+    }
+    .tables button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .tables button:hover {
+      opacity: 0.9;
+    }
+
+    .main {
+      flex: 1;
+      padding: 20px;
+      margin-left: 260px;
+    }
+    
+    /* Стилі для статистики */
+    .stats-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .date-filter {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .date-filter input, .date-filter select {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      height: 40px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .stat-card h3 {
+      margin-top: 0;
+      color: #6c757d;
+      font-size: 16px;
+    }
+    .stat-card .value {
+      font-size: 28px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .stat-card .change {
+      font-size: 14px;
+    }
+    .change.positive {
+      color: #28a745;
+    }
+    .change.negative {
+      color: #dc3545;
+    }
+    .charts-container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .chart-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .chart-container h2 {
+      margin-top: 0;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    .chart-wrapper {
+      position: relative;
+      height: 300px;
+    }
+    .popular-items {
+      margin-top: 30px;
+    }
+    .popular-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .popular-item:last-child {
+      border-bottom: none;
+    }
+    .progress-bar {
+      height: 10px;
+      background: #e9ecef;
+      border-radius: 5px;
+      margin-top: 5px;
+      width: 100%;
+    }
+    .progress {
+      height: 100%;
+      border-radius: 5px;
+      background: #007bff;
+    }
+    @media (max-width: 1200px) {
+      .charts-container {
+        grid-template-columns: 1fr;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <h2>mKelner</h2>
+    <nav>
+      <a href="{{ url_for('menu_page') }}">Menu</a>
+      <a href="{{ url_for('order_page') }}">Zamówienia</a>
+      <a href="{{ url_for('clients_page') }}">Klienci</a>
+      <a href="{{ url_for('stats_page') }}" class="active">Statystyka</a>
+      <a href="{{ url_for('tables_page') }}">Zarządzanie stolikami</a>
+    </nav>
+    
+    <div class="tables">
+      <button style="background:#d4edda">Stół 1 - Wolny</button>
+      <button style="background:#fff3cd">Stół 2 - Oczekuje</button>
+      <button style="background:#d4edda">Stół 3 - Gotowy</button>
+      <button style="background:#d4edda">Stół 4 - Wolny</button>
+    </div>
+    
+    <a href="#" class="logout">Wyloguj się</a>
+  </aside>
+
+  <main class="main">
+    <div class="stats-header">
+      <h1>Statystyki restauracji</h1>
+      <div class="date-filter">
+        <select id="timePeriod">
+          <option value="today">Dzisiaj</option>
+          <option value="yesterday">Wczoraj</option>
+          <option value="week">Ten tydzień</option>
+          <option value="month">Ten miesiąc</option>
+          <option value="custom">Niestandardowy</option>
+        </select>
+        <input type="date" id="startDate" value="2023-11-15">
+        <input type="date" id="endDate" value="2023-11-15">
+      </div>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Całkowity przychód</h3>
+        <div class="value" id="totalRevenue">4,582 PLN</div>
+        <div class="change positive">↑ 12% w porównaniu do wczoraj</div>
+      </div>
+      <div class="stat-card">
+        <h3>Liczba zamówień</h3>
+        <div class="value" id="ordersCount">87</div>
+        <div class="change positive">↑ 8% w porównaniu do wczoraj</div>
+      </div>
+      <div class="stat-card">
+        <h3>Średnia wartość zamówienia</h3>
+        <div class="value" id="avgOrderValue">52.67 PLN</div>
+        <div class="change negative">↓ 3% w porównaniu do wczoraj</div>
+      </div>
+    </div>
+    
+    <div class="charts-container">
+      <div class="chart-container">
+        <h2>Przychód w czasie</h2>
+        <div class="chart-wrapper">
+          <canvas id="revenueChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-container">
+        <h2>Popularność kategorii</h2>
+        <div class="chart-wrapper">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <div class="chart-container popular-items">
+      <h2>Najpopularniejsze pozycje menu</h2>
+      <div class="popular-item">
+        <span>Stek wołowy</span>
+        <span>42 zamówienia</span>
+        <div class="progress-bar">
+          <div class="progress" style="width: 75%"></div>
+        </div>
+      </div>
+      <div class="popular-item">
+        <span>Łosoś grillowany</span>
+        <span>35 zamówień</span>
+        <div class="progress-bar">
+          <div class="progress" style="width: 62%"></div>
+        </div>
+      </div>
+      <div class="popular-item">
+        <span>Sałatka grecka</span>
+        <span>28 zamówień</span>
+        <div class="progress-bar">
+          <div class="progress" style="width: 50%"></div>
+        </div>
+      </div>
+      <div class="popular-item">
+        <span>Lemoniada świeża</span>
+        <span>18 zamówień</span>
+        <div class="progress-bar">
+          <div class="progress" style="width: 32%"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Dane statystyczne
+      const statsData = {
+        totalRevenue: 4582,
+        ordersCount: 87,
+        avgOrderValue: 52.67,
+        revenueChange: 12,
+        ordersChange: 8,
+        avgOrderChange: -3
+      };
+      
+      // Aktualizacja wartości na stronie
+      document.getElementById('totalRevenue').textContent = 
+        `${statsData.totalRevenue.toLocaleString('pl-PL')} PLN`;
+      document.getElementById('ordersCount').textContent = 
+        statsData.ordersCount;
+      document.getElementById('avgOrderValue').textContent = 
+        `${statsData.avgOrderValue.toFixed(2)} PLN`;
+      
+      // Wykres przychodu
+      const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+      new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+          labels: ['8:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+          datasets: [{
+            label: 'Przychód (PLN)',
+            data: [450, 800, 1200, 1850, 1400, 2100, 1800, 950],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            fill: true,
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+      
+      // Wykres kategorii
+      const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+      new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Dania główne', 'Przystawki', 'Napoje', 'Desery'],
+          datasets: [{
+            data: [45, 25, 20, 10],
+            backgroundColor: [
+              '#FF6384',
+              '#36A2EB',
+              '#FFCE56',
+              '#4BC0C0'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+            }
+          }
+        }
+      });
+      
+      // Obsługa filtrów dat
+      const timePeriodSelect = document.getElementById('timePeriod');
+      const startDateInput = document.getElementById('startDate');
+      const endDateInput = document.getElementById('endDate');
+      
+      timePeriodSelect.addEventListener('change', function() {
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        switch(this.value) {
+          case 'today':
+            startDateInput.valueAsDate = today;
+            endDateInput.valueAsDate = today;
+            break;
+          case 'yesterday':
+            startDateInput.valueAsDate = yesterday;
+            endDateInput.valueAsDate = yesterday;
+            break;
+          case 'week':
+            startDateInput.valueAsDate = startOfWeek;
+            endDateInput.valueAsDate = today;
+            break;
+          case 'month':
+            startDateInput.valueAsDate = startOfMonth;
+            endDateInput.valueAsDate = today;
+            break;
+          case 'custom':
+            // Pozostaw daty do ręcznej edycji
+            break;
+        }
+        
+        // Tutaj można dodać kod do odświeżania danych na podstawie wybranego okresu
+        // loadData(startDateInput.value, endDateInput.value);
+      });
+      
+      // Inicjalizacja dat
+      timePeriodSelect.dispatchEvent(new Event('change'));
+    });
+    
+    // Funkcja do ładowania danych (przykład)
+    function loadData(startDate, endDate) {
+      console.log(`Ładowanie danych z zakresu: ${startDate} - ${endDate}`);
+      // Tutaj można dodać AJAX do pobrania danych z serwera
+    }
+  </script>
+</body>
+</html>

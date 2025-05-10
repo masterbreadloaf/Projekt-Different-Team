@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="../static/css/css.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>mKelner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f9f9f9;
+      display: flex;
+    }
+    aside {
+      width: 220px;
+      background: #f1f1f1;
+      padding: 20px;
+      height: 100vh;
+      position: fixed;
+    }
+    aside h2 {
+      margin-top: 0;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    aside nav a {
+      display: block;
+      margin: 10px 0;
+      color: #000;
+      text-decoration: none;
+      padding: 8px;
+      border-radius: 4px;
+    }
+    aside nav a:hover {
+      background-color: #ddd;
+    }
+    aside nav a.active {
+      background-color: #ddd;
+      font-weight: bold;
+    }
+    aside a.logout {
+      display: block;
+      margin-top: 20px;
+      color: #000;
+      text-decoration: none;
+      padding: 8px;
+      border-radius: 4px;
+    }
+    aside a.logout:hover {
+      background-color: #ddd;
+    }
+    .tables button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .tables button:hover {
+      opacity: 0.9;
+    }
+
+    .main {
+      flex: 1;
+      padding: 20px;
+      margin-left: 260px;
+    }
+    
+    /* Стилі для списку клієнтів */
+    .clients-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .search-bar {
+      padding: 8px;
+      width: 300px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .clients-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .clients-table th, .clients-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    .clients-table th {
+      background-color: #f8f9fa;
+      font-weight: bold;
+    }
+    .clients-table tr:hover {
+      background-color: #f5f5f5;
+    }
+    .status-badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      font-weight: bold;
+    }
+    .status-active {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .status-finished {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .client-photo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .action-btn {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    .edit-btn {
+      background-color: #ffc107;
+      color: #212529;
+    }
+    .delete-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <h2>mKelner</h2>
+    <nav>
+      <a href="{{ url_for('menu_page') }}">Menu</a>
+      <a href="{{ url_for('order_page') }}">Zamówienia</a>
+      <a href="{{ url_for('clients_page') }}" class="active">Klienci</a>
+      <a href="{{ url_for('stats_page') }}">Statystyka</a>
+      <a href="{{ url_for('tables_page') }}">Zarządzanie stolikami</a>
+    </nav>
+    
+    <div class="tables">
+      <button style="background:#d4edda">Stół 1 - Wolny</button>
+      <button style="background:#fff3cd">Stół 2 - Oczekuje</button>
+      <button style="background:#d4edda">Stół 3 - Gotowy</button>
+      <button style="background:#d4edda">Stół 4 - Wolny</button>
+    </div>
+    
+    <a href="#" class="logout">Wyloguj się</a>
+  </aside>
+
+  <main class="main">
+    <div class="clients-header">
+      <h1>Lista klientów</h1>
+      <input type="text" class="search-bar" placeholder="Wyszukaj klienta...">
+    </div>
+    
+    <table class="clients-table">
+      <thead>
+        <tr>
+          <th>Nr stolika</th>
+          <th>Zdjęcie</th>
+          <th>Imię i nazwisko</th>
+          <th>Płeć</th>
+          <th>Wiek</th>
+          <th>Alergeny</th>
+          <th>Status</th>
+          <th>Akcje</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2</td>
+          <td><img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Klient" class="client-photo"></td>
+          <td>Anna Kowalska</td>
+          <td>Kobieta</td>
+          <td>28</td>
+          <td>Orzechy</td>
+          <td><span class="status-badge status-active">Aktywny</span></td>
+          <td>
+            <button class="action-btn edit-btn">Edytuj</button>
+            <button class="action-btn delete-btn">Usuń</button>
+          </td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td><img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Klient" class="client-photo"></td>
+          <td>Jan Nowak</td>
+          <td>Mężczyzna</td>
+          <td>35</td>
+          <td>Brak</td>
+          <td><span class="status-badge status-finished">Zakończony</span></td>
+          <td>
+            <button class="action-btn edit-btn">Edytuj</button>
+            <button class="action-btn delete-btn">Usuń</button>
+          </td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Klient" class="client-photo"></td>
+          <td>Maria Wiśniewska</td>
+          <td>Kobieta</td>
+          <td>42</td>
+          <td>Gluten, laktoza</td>
+          <td><span class="status-badge status-active">Aktywny</span></td>
+          <td>
+            <button class="action-btn edit-btn">Edytuj</button>
+            <button class="action-btn delete-btn">Usuń</button>
+          </td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Klient" class="client-photo"></td>
+          <td>Piotr Lewandowski</td>
+          <td>Mężczyzna</td>
+          <td>31</td>
+          <td>Brak</td>
+          <td><span class="status-badge status-active">Aktywny</span></td>
+          <td>
+            <button class="action-btn edit-btn">Edytuj</button>
+            <button class="action-btn delete-btn">Usuń</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+
+  <script>
+    // Sortowanie tabeli po numerze stolika
+    document.addEventListener('DOMContentLoaded', function() {
+      const table = document.querySelector('.clients-table');
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      
+      // Sortowanie wierszy według numeru stolika
+      rows.sort((a, b) => {
+        const aNum = parseInt(a.cells[0].textContent);
+        const bNum = parseInt(b.cells[0].textContent);
+        return aNum - bNum;
+      });
+      
+      // Usunięcie istniejących wierszy
+      while (tbody.firstChild) {
+        tbody.removeChild(tbody.firstChild);
+      }
+      
+      // Dodanie posortowanych wierszy
+      rows.forEach(row => tbody.appendChild(row));
+      
+      // Funkcja wyszukiwania
+      const searchInput = document.querySelector('.search-bar');
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = tbody.querySelectorAll('tr');
+        
+        rows.forEach(row => {
+          const name = row.cells[2].textContent.toLowerCase();
+          const tableNum = row.cells[0].textContent;
+          if (name.includes(searchTerm) || tableNum.includes(searchTerm)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
