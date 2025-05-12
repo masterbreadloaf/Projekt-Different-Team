@@ -84,6 +84,11 @@ pip install python-dotenv
 Instalujemy Flaska
 pip install Flask
 
+uruchamiamy serwer Flask poprzez
+python app.py
+
+aplikacja będzie dostępna w przeglądarce pod adresem 127.0.0.1:5000 lub localhost:5000
+
 -----------------------------------------
 Proponowana struktura plików:
 
