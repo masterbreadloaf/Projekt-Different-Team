@@ -30,26 +30,15 @@ PPM > Właściwości/Properties > Service > Start Mode przełączyć z Disabled 
 
 https://www.youtube.com/watch?v=PM-3LiG5rfQ
 -----------------------------------------
-ROZWÓJ:
-
-Do skonfigurowania:
--ODBC jako źródło danych serwera SQL
-
-Do instalacji i napisania:
--instalacja bibliotek
-	sqlalchemy (nmp install sqlalchemy)
-	flask, pyodbc, python-dotenv (pip install flask pyodbc python-dotenv)
--do napisania db.py
-
 
 Dane poniżej dotyczą katalogu app\
 
-Tworzenie wirtualnego środowiska python:
+[nie trzeba] Tworzenie wirtualnego środowiska python:
 python -m venv venv | Jeśli chcemy stworzyć nowe. Jest dodane przeze mnie do folderu
 
 venv\Scripts\activate
 
-Instalacja bibliotek:
+[od tego punktu i dalej trzeba] Instalacja bibliotek:
 pip install -r requirements.txt | Jeśli nie chcecie instalować z szablonu, w pliku requirements są wymagane wersje bibliotek.
 
 Jeśli nie mamy, pobieramy ODBC w wersji 17 ze strony. Jeśli mamy, wystarczy skonfigurować.
