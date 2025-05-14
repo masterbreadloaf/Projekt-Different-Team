@@ -81,7 +81,7 @@ aplikacja będzie dostępna w przeglądarce pod adresem 127.0.0.1:5000 lub local
 -----------------------------------------
 Proponowana struktura plików:
 
-restaurant_app/ - Główna struktura aplikacji restauracyjnej opartej na Flask, MS SQL Server i Bootstrap.
+app/ - Główna struktura aplikacji restauracyjnej opartej na Flask, MS SQL Server i Bootstrap.
 
 ├── app.py
     - Główna aplikacja Flask, uruchamiana lokalnie.
