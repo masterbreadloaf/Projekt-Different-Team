@@ -45,6 +45,7 @@
   <table id="ordersTable">
     <thead>
       <tr>
+        <th>ID</th>
         <th>Data</th>
         <th>Stolik</th>
         <th>Status</th>
@@ -83,6 +84,7 @@ async function loadHistory() {
   data.forEach(order => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
+      <td>${order.id}</td>
       <td>${new Date(order.date).toLocaleString()}</td>
       <td>${order.table}</td>
       <td>${order.status}</td>

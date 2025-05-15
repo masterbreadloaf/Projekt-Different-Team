@@ -74,7 +74,7 @@
 
       <div class="right-panel">
         <div class="order-summary">
-          <h3>Zamówienie</h3>
+          <h3>Zamówienie nr: <span id="orderIdDisplay">–</span></h3>
           <ul id="orderList"></ul>
           <p><strong>Suma:</strong> <span id="totalAmount">0</span> PLN</p>
           <p><strong>Czas przygotowania:</strong> <span id="totalTime">0</span> min</p>
@@ -151,6 +151,7 @@ function updateSummary() {
   });
   amount.innerText = total.toFixed(2);
   time.innerText = prep;
+  document.getElementById('orderIdDisplay').innerText = currentOrderId ?? '–';
 }
 
 async function submitOrder() {
