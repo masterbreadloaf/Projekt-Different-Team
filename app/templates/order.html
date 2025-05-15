@@ -37,7 +37,7 @@
       <a href="{{ url_for('order_page') }}" class="active">Zamówienia</a>
       <a href="{{ url_for('clients_page') }}">Klienci</a>
       <a href="{{ url_for('stats_page') }}">Statystyka</a>
-      <a href="{{ url_for('tables_page') }}">Zarządzanie stolikami</a>
+      <a href="{{ url_for('order_routes.history_page') }}">Historia Zamówień</a>
     </nav>
 
     <div class="tables" id="sideTables"></div>
@@ -114,209 +114,199 @@
     </div>
   </main>
 
-  <script>
-    let order = [];
-    let currentOrderId = null;
+<script>
+let order = [];
+let currentOrderId = null;
 
-    function showCategory(event, id) {
-      document.querySelectorAll('.menu-category').forEach(c => c.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
-    }
+function showCategory(event, id) {
+  document.querySelectorAll('.menu-category').forEach(c => c.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+}
 
-    function addToOrder(id, name, price, prep_time) {
-      const existing = order.find(i => i.id === id);
-      if (existing) {
-        existing.qty += 1;
-        existing.total_price += price;
-      } else {
-        order.push({ id, name, price, prep_time, qty: 1, total_price: price });
-      }
-      updateSummary();
-    }
-
-    function updateSummary() {
-      const list = document.getElementById('orderList');
-      const amount = document.getElementById('totalAmount');
-      const time = document.getElementById('totalTime');
-      list.innerHTML = '';
-      let total = 0, prep = 0;
-      order.forEach(item => {
-        const li = document.createElement('li');
-        li.innerText = `${item.qty}x ${item.name} – ${item.total_price.toFixed(2)} PLN`;
-        list.appendChild(li);
-        total += item.total_price;
-        prep += item.prep_time;
-      });
-      amount.innerText = total.toFixed(2);
-      time.innerText = prep;
-    }
-    function confirmRelease() {
-    const tableId = document.getElementById('tableSelect').value;
-      if (confirm("Czy na pewno chcesz zwolnić rezerwację tego stolika?")) {
-        updateStatus(tableId, 'wolny');
-      }
-    }
-
-
-    document.getElementById('submitOrder').onclick = async () => {
-      const tableId = parseInt(document.getElementById('tableSelect').value);
-      const payload = {
-        table_id: tableId,
-        items: order,
-        total: parseFloat(document.getElementById('totalAmount').innerText),
-        prep_time: parseInt(document.getElementById('totalTime').innerText)
-      };
-      const res = await fetch('/api/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        const data = await res.json();
-        order = [];
-        updateSummary();
-        currentOrderId = data.order_id;
-        document.getElementById('markPaid').style.display = 'block';
-        document.getElementById('successMessage').style.display = 'block';
-        loadTables(); // odśwież dane
-      }
-    };
-
-    document.getElementById('markPaid').onclick = async () => {
-      if (!currentOrderId) return;
-      await fetch(`/api/orders/pay/${currentOrderId}`, { method: 'POST' });
-      alert("Zamówienie opłacone. Stolik zwolniony.");
-      location.reload();
-    };
-
-    async function loadTables() {
-      const res = await fetch('/api/tables');
-      const data = await res.json();
-      const select = document.getElementById('tableSelect');
-      const side = document.getElementById('sideTables');
-      select.innerHTML = '';
-      side.innerHTML = '';
-
-      const statusMap = {
-        'OP': 'Oczekuje na płatność',
-        'OJ': 'Oczekuje na jedzenie',
-        'RE': 'Zarezerwowany',
-        'wolny': 'Wolny'
-      };
-      const statusClass = {
-        'OP': 'stol-op',
-        'OJ': 'stol-oj',
-        'RE': 'stol-re',
-        'wolny': 'stol-wolny'
-      };
-
-      data.forEach(stol => {
-        const opt = document.createElement('option');
-        opt.value = stol.id;
-        opt.textContent = `Stół ${stol.number} – ${statusMap[stol.status]}`;
-        opt.className = statusClass[stol.status];
-        select.appendChild(opt);
-
-        const btn = document.createElement('button');
-        btn.textContent = `Stół ${stol.number} – ${statusMap[stol.status]}`;
-        btn.className = statusClass[stol.status];
-        btn.onclick = () => handleTableClick(stol.id, stol.status);
-        side.appendChild(btn);
-      });
-    }
-
-  async function handleTableClick(id, status) {
-    document.getElementById('tableSelect').value = id;
-    const note = document.getElementById('tableNote');
-    const summary = document.getElementById('orderList');
-    const total = document.getElementById('totalAmount');
-    const time = document.getElementById('totalTime');
-    const markPaidBtn = document.getElementById('markPaid');
-    const reserveBtn = document.getElementById('reserveButton');
-    const releaseBtn = document.getElementById('releaseReservation');
-
-    note.textContent = '';
-    markPaidBtn.style.display = 'none';
-    reserveBtn.style.display = 'none';
-    releaseBtn.style.display = 'none';
-    summary.innerHTML = '';
-    total.textContent = '0';
-    time.textContent = '0';
-
-    if (status === 'RE') {
-      note.innerHTML = "🔴 <strong>Stolik zarezerwowany</strong> – możesz złożyć zamówienie.";
-      releaseBtn.style.display = 'block';
-      return;
-    }
-
-    if (status === 'wolny') {
-      reserveBtn.style.display = 'block';
-      return;
-    }
-
-    if (status === 'OJ' || status === 'OP') {
-      const res = await fetch(`/api/orders/last/${id}`);
-      const data = await res.json();
-
-      const summary = document.getElementById('orderList');
-      const total = document.getElementById('totalAmount');
-      const time = document.getElementById('totalTime');
-
-      summary.innerHTML = '';
-      let totalSum = 0;
-      let prepTime = 0;
-
-      data.items.forEach(i => {
-        const row = document.createElement('li');
-        row.innerText = `${i.qty}x ${i.name} – ${i.total.toFixed(2)} PLN`;
-        summary.appendChild(row);
-        totalSum += i.total;
-        prepTime += i.qty * i.prep_time;
-      });
-
-      total.innerText = totalSum.toFixed(2);
-      time.innerText = prepTime;
-
-      currentOrderId = data.id;
-      document.getElementById('markPaid').style.display = 'block';
-      return;
-    }
+function addToOrder(id, name, price, prep_time) {
+  const existing = order.find(i => i.id === id);
+  if (existing) {
+    existing.qty += 1;
+    existing.total_price += price;
+  } else {
+    order.push({ id, name, price, prep_time, qty: 1, total_price: price });
   }
+  updateSummary();
+}
 
+function updateSummary() {
+  const list = document.getElementById('orderList');
+  const amount = document.getElementById('totalAmount');
+  const time = document.getElementById('totalTime');
+  list.innerHTML = '';
+  let total = 0, prep = 0;
+  order.forEach(item => {
+    const li = document.createElement('li');
+    li.innerText = `${item.qty}x ${item.name} – ${item.total_price.toFixed(2)} PLN`;
+    list.appendChild(li);
+    total += item.total_price;
+    prep += item.qty * item.prep_time;
+  });
+  amount.innerText = total.toFixed(2);
+  time.innerText = prep;
+}
 
-  async function updateStatus(tableId, newStatus) {
+async function submitOrder() {
+  if (order.length === 0) return alert("Zamówienie jest puste.");
+  const tableId = parseInt(document.getElementById('tableSelect').value);
+  const payload = {
+    table_id: tableId,
+    items: order,
+    total: parseFloat(document.getElementById('totalAmount').innerText),
+    prep_time: parseInt(document.getElementById('totalTime').innerText)
+  };
+
+  const endpoint = currentOrderId ? `/api/orders/${currentOrderId}` : '/api/order';
+  const method = currentOrderId ? 'PATCH' : 'POST';
+
+  const res = await fetch(endpoint, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (res.ok) {
+  const data = await res.json();
+  currentOrderId = data.order_id ?? currentOrderId;
+  await loadTables();
+  await handleTableClick(tableId, 'OJ'); // Załaduj dane z bazy
+  document.getElementById('successMessage').style.display = 'block';
+  } else {
+    alert("Błąd przy wysyłaniu zamówienia.");
+  }
+}
+
+async function markAsPaid() {
+  if (!currentOrderId) return;
+  await fetch(`/api/orders/pay/${currentOrderId}`, { method: 'POST' });
+  alert("Zamówienie opłacone. Stolik zwolniony.");
+  currentOrderId = null;
+  order = [];
+  updateSummary();
+  await loadTables();
+}
+
+async function updateStatus(tableId, newStatus) {
   await fetch(`/api/tables/${tableId}/status`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status: newStatus })
   });
-  location.reload();
-  }
+  await loadTables();
+}
 
-  async function markAsPaid() {
-  if (!currentOrderId) return;
-  await fetch(`/api/orders/pay/${currentOrderId}`, {
-    method: 'POST'
+function confirmRelease() {
+  const tableId = document.getElementById('tableSelect').value;
+  if (confirm("Czy na pewno chcesz zwolnić rezerwację tego stolika?")) {
+    updateStatus(tableId, 'wolny');
+  }
+}
+
+async function loadTables() {
+  const res = await fetch('/api/tables');
+  const data = await res.json();
+  const select = document.getElementById('tableSelect');
+  const side = document.getElementById('sideTables');
+  select.innerHTML = '';
+  side.innerHTML = '';
+
+  const statusMap = {
+    'OP': 'Oczekuje na płatność',
+    'OJ': 'Oczekuje na jedzenie',
+    'RE': 'Zarezerwowany',
+    'wolny': 'Wolny'
+  };
+  const statusClass = {
+    'OP': 'stol-op',
+    'OJ': 'stol-oj',
+    'RE': 'stol-re',
+    'wolny': 'stol-wolny'
+  };
+
+  data.forEach(stol => {
+    const opt = document.createElement('option');
+    opt.value = stol.id;
+    opt.textContent = `Stół ${stol.number} – ${statusMap[stol.status]}`;
+    opt.className = statusClass[stol.status];
+    select.appendChild(opt);
+
+    const btn = document.createElement('button');
+    btn.textContent = `Stół ${stol.number} – ${statusMap[stol.status]}`;
+    btn.className = statusClass[stol.status];
+    btn.onclick = () => handleTableClick(stol.id, stol.status);
+    side.appendChild(btn);
   });
-  location.reload();
+}
+
+async function handleTableClick(id, status) {
+  document.getElementById('tableSelect').value = id;
+  const note = document.getElementById('tableNote');
+  const reserveBtn = document.getElementById('reserveButton');
+  const releaseBtn = document.getElementById('releaseReservation');
+  const markPaidBtn = document.getElementById('markPaid');
+
+  order = [];
+  currentOrderId = null;
+  updateSummary();
+  note.textContent = '';
+  reserveBtn.style.display = 'none';
+  releaseBtn.style.display = 'none';
+  markPaidBtn.style.display = 'none';
+
+  if (status === 'RE') {
+    note.innerHTML = "🔴 <strong>Stolik zarezerwowany</strong> – możesz złożyć zamówienie.";
+    releaseBtn.style.display = 'block';
+    return;
   }
 
-    async function loadAlergeny() {
-      const res = await fetch('/api/alergeny');
-      const data = await res.json();
-      const list = document.getElementById('allergyList');
-      list.innerHTML = '';
-      data.forEach(al => {
-        const checkbox = document.createElement('label');
-        checkbox.innerHTML = `<input type="checkbox" name="alergeny" value="${al}"> ${al}<br>`;
-        list.appendChild(checkbox);
-      });
-    }
+  if (status === 'wolny') {
+    reserveBtn.style.display = 'block';
+    return;
+  }
 
-    loadTables();
-    loadAlergeny();
-  </script>
+  if (status === 'OJ' || status === 'OP') {
+    const res = await fetch(`/api/orders/last/${id}`);
+    const data = await res.json();
+    currentOrderId = data.id;
+
+    order = data.items.map(i => ({
+      id: i.id,
+      name: i.name,
+      qty: i.qty,
+      price: i.total / i.qty,
+      total_price: i.total,
+      prep_time: i.prep_time ?? 10
+    }));
+
+    updateSummary();
+    markPaidBtn.style.display = 'block';
+  }
+}
+
+async function loadAlergeny() {
+  const res = await fetch('/api/alergeny');
+  const data = await res.json();
+  const list = document.getElementById('allergyList');
+  list.innerHTML = '';
+  data.forEach(al => {
+    const checkbox = document.createElement('label');
+    checkbox.innerHTML = `<input type="checkbox" name="alergeny" value="${al}"> ${al}<br>`;
+    list.appendChild(checkbox);
+  });
+}
+
+// Init
+document.getElementById('submitOrder').onclick = submitOrder;
+document.getElementById('markPaid').onclick = markAsPaid;
+loadTables();
+loadAlergeny();
+</script>
 </body>
 </html>

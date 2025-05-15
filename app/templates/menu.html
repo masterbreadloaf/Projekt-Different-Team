@@ -14,17 +14,10 @@
       <a href="{{ url_for('order_page') }}">Zamówienia</a>
       <a href="{{ url_for('clients_page') }}">Klienci</a>
       <a href="{{ url_for('stats_page') }}">Statystyka</a>
-      <a href="{{ url_for('tables_page') }}">Zarządzanie stolikami</a>
+      <a href="{{ url_for('order_routes.history_page') }}">Historia Zamówień</a>
     </nav>
 
-    <div class="tables">
-      <button style="background:#d4edda">Stół 1 - Wolny</button>
-      <button style="background:#fff3cd">Stół 2 - Oczekuje</button>
-      <button style="background:#d4edda">Stół 3 - Gotowy</button>
-      <button style="background:#d4edda">Stół 4 - Wolny</button>
-    </div>
-
-    <a href="#" class="logout">Wyloguj się</a>
+    <div class="tables" id="sideTables"></div>
   </aside>
 
   <main class="main">

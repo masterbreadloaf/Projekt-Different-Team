@@ -8,6 +8,9 @@ app = Flask(__name__)  # Utworzenie instancji Flask
 from routes.order_routes import order_routes
 app.register_blueprint(order_routes)
 
+from routes.history_routes import history_routes
+app.register_blueprint(history_routes)
+
 @app.route('/')
 def index():
     return render_template('menu.html', menu=get_menu_data())
