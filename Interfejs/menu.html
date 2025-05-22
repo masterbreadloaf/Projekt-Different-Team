@@ -1,137 +1,10 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>mKelner</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f9f9f9;
-      display: flex;
-    }
-    aside {
-      width: 220px;
-      background: #f1f1f1;
-      padding: 20px;
-      height: 100vh;
-      position: fixed;
-    }
-    aside h2 {
-      margin-top: 0;
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
-    aside nav a {
-      display: block;
-      margin: 10px 0;
-      color: #000;
-      text-decoration: none;
-      padding: 8px;
-      border-radius: 4px;
-    }
-    aside nav a:hover {
-      background-color: #ddd;
-    }
-    aside nav a.active {
-      background-color: #ddd;
-      font-weight: bold;
-    }
-    aside a.logout {
-      display: block;
-      margin-top: 20px;
-      color: #000;
-      text-decoration: none;
-      padding: 8px;
-      border-radius: 4px;
-    }
-    aside a.logout:hover {
-      background-color: #ddd;
-    }
-    .tables button {
-      width: 100%;
-      margin: 8px 0;
-      padding: 8px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      text-align: left;
-    }
-    .tables button:hover {
-      opacity: 0.9;
-    }
-
-    .main {
-      flex: 1;
-      padding: 20px;
-      margin-left: 260px;
-    }
-    
-    /* Стилі для меню */
-    .menu-category {
-      margin-bottom: 30px;
-    }
-    .menu-category h2 {
-      border-bottom: 2px solid #ddd;
-      padding-bottom: 10px;
-      margin-bottom: 20px;
-    }
-    .menu-items {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-    }
-    .menu-item {
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
-    }
-    .menu-item:hover {
-      transform: translateY(-5px);
-    }
-    .menu-item img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-    }
-    .menu-item-content {
-      padding: 15px;
-    }
-    .menu-item h3 {
-      margin: 0 0 10px 0;
-    }
-    .menu-item p {
-      margin: 5px 0;
-      color: #555;
-    }
-    .menu-item-price {
-      font-weight: bold;
-      color: #28a745;
-      font-size: 1.2em;
-    }
-    .menu-item-time {
-      color: #6c757d;
-    }
-    .menu-tabs {
-      display: flex;
-      margin-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .menu-tab {
-      padding: 10px 20px;
-      cursor: pointer;
-      border: none;
-      background: none;
-      font-size: 16px;
-    }
-    .menu-tab.active {
-      border-bottom: 3px solid #28a745;
-      font-weight: bold;
-    }
-  </style>
+  <link rel="stylesheet" href="css.css">
 </head>
 <body>
   <aside>
@@ -140,149 +13,53 @@
       <a href="menu.html" class="active">Menu</a>
       <a href="order.html">Zamówienia</a>
       <a href="clients.html">Klienci</a>
-      <a href="statistics.html">Statystyka</a>
-      <a href="tables.html">Zarządzanie stolikami</a>
+      <a href="stats.html">Statystyka</a>
+      <a href="history.html">Historia Zamówień</a>
+      <a href="login.html" class="logout">Wyloguj się</a>
     </nav>
-    
-    <div class="tables">
-      <button style="background:#d4edda">Stół 1 - Wolny</button>
-      <button style="background:#fff3cd">Stół 2 - Oczekuje</button>
-      <button style="background:#d4edda">Stół 3 - Gotowy</button>
-      <button style="background:#d4edda">Stół 4 - Wolny</button>
-    </div>
-    
-    <a href="#" class="logout">Wyloguj się</a>
+    <div class="tables" id="sideTables"></div>
   </aside>
 
   <main class="main">
     <h1>Menu restauracji</h1>
-    
     <div class="menu-tabs">
-      <button class="menu-tab active" onclick="showCategory('przystawki')">Przystawki</button>
-      <button class="menu-tab" onclick="showCategory('dania')">Dania główne</button>
-      <button class="menu-tab" onclick="showCategory('napoje')">Napoje</button>
-      <button class="menu-tab" onclick="showCategory('desery')">Desery</button>
+      <button class="menu-tab active" onclick="showCategory(event, 'przystawki')">Przystawki</button>
+      <button class="menu-tab" onclick="showCategory(event, 'zupy')">Zupy</button>
+      <button class="menu-tab" onclick="showCategory(event, 'sałatki')">Sałatki</button>
+      <button class="menu-tab" onclick="showCategory(event, 'makarony')">Makarony</button>
+      <button class="menu-tab" onclick="showCategory(event, 'pizze')">Pizze</button>
+      <button class="menu-tab" onclick="showCategory(event, 'dania główne')">Dania główne</button>
+      <button class="menu-tab" onclick="showCategory(event, 'burgery')">Burgery</button>
+      <button class="menu-tab" onclick="showCategory(event, 'desery')">Desery</button>
+      <button class="menu-tab" onclick="showCategory(event, 'napoje')">Napoje</button>
     </div>
-    
-    <!-- Przystawki -->
-    <div class="menu-category" id="przystawki">
-      <h2>Przystawki</h2>
+
+    {% for category, items in menu.items() %}
+    <div class="menu-category" id="{{ category|lower }}" style="display: {{ 'block' if loop.first else 'none' }};">
+      <h2>{{ category.capitalize() }}</h2>
       <div class="menu-items">
+        {% for item in items %}
         <div class="menu-item">
-          <img src="https://images.pexels.com/photos/1152237/pexels-photo-1152237.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Sałatka grecka">
+          <img src="{{ item.image }}" alt="{{ item.name }}">
           <div class="menu-item-content">
-            <h3>Sałatka grecka</h3>
-            <p>Świeże warzywa, feta, oliwki, oregano</p>
-            <p class="menu-item-price">22 PLN</p>
-            <p class="menu-item-time">Czas przygotowania: 10 min</p>
+            <h3>{{ item.name }}</h3>
+            <p>{{ item.description }}</p>
+            <p class="menu-item-price">{{ item.price }} PLN</p>
+            <p class="menu-item-time">Czas przygotowania: {{ item.prep_time }} min</p>
           </div>
         </div>
-        
-        <div class="menu-item">
-          <img src="https://images.pexels.com/photos/31961234/pexels-photo-31961234/free-photo-of-gourmet-beef-tartare-with-wine-pairing.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Tatar wołowy">
-          <div class="menu-item-content">
-            <h3>Tatar wołowy</h3>
-            <p>Mielona wołowina, żółtko, kapary, cebula</p>
-            <p class="menu-item-price">35 PLN</p>
-            <p class="menu-item-time">Czas przygotowania: 15 min</p>
-          </div>
-        </div>
+        {% endfor %}
       </div>
     </div>
-    
-    <!-- Dania główne -->
-    <div class="menu-category" id="dania" style="display:none;">
-      <h2>Dania główne</h2>
-      <div class="menu-items">
-        <div class="menu-item">
-          <img src="https://images.pexels.com/photos/30112336/pexels-photo-30112336/free-photo-of-gourmet-steak-dish-with-chimichurri-sauce.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Stek wołowy">
-          <div class="menu-item-content">
-            <h3>Stek wołowy</h3>
-            <p>200g polędwicy wołowej z frytkami i sosem</p>
-            <p class="menu-item-price">65 PLN</p>
-            <p class="menu-item-time">Czas przygotowania: 25 min</p>
-          </div>
-        </div>
-        
-        <div class="menu-item">
-          <img src="https://images.pexels.com/photos/31890213/pexels-photo-31890213/free-photo-of-delicious-grilled-salmon-with-vegetables-and-lime.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Łosoś grillowany">
-          <div class="menu-item-content">
-            <h3>Łosoś grillowany</h3>
-            <p>Filet z łososia z warzywami sezonowymi</p>
-            <p class="menu-item-price">48 PLN</p>
-            <p class="menu-item-time">Czas przygotowania: 20 min</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Napoje -->
-    <div class="menu-category" id="napoje" style="display:none;">
-      <h2>Napoje</h2>
-      <div class="menu-items">
-        <div class="menu-item">
-          <img src="https://images.pexels.com/photos/2109099/pexels-photo-2109099.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Lemoniada">
-          <div class="menu-item-content">
-            <h3>Lemoniada świeża</h3>
-            <p>Domowa lemoniada z cytryn i mięty</p>
-            <p class="menu-item-price">12 PLN</p>
-            <p class="menu-item-time">Czas przygotowania: 5 min</p>
-          </div>
-        </div>
-        
-        <div class="menu-item">
-          <img src="https://images.pexels.com/photos/2584451/pexels-photo-2584451.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Wino białe">
-          <div class="menu-item-content">
-            <h3>Wino białe (kieliszek)</h3>
-            <p>Chardonnay, region Bordeaux</p>
-            <p class="menu-item-price">18 PLN</p>
-            <p class="menu-item-time">Czas przygotowania: 2 min</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Desery -->
-    <div class="menu-category" id="desery" style="display:none;">
-      <h2>Desery</h2>
-      <div class="menu-items">
-        <div class="menu-item">
-          <img src="https://images.unsplash.com/photo-1563805042-7684c019e1cb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Tiramisu">
-          <div class="menu-item-content">
-            <h3>Tiramisu</h3>
-            <p>Klasyczny włoski deser kawowy</p>
-            <p class="menu-item-price">22 PLN</p>
-            <p class="menu-item-time">Czas przygotowania: 10 min</p>
-          </div>
-        </div>
-        
-        <div class="menu-item">
-          <img src="https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Lody waniliowe">
-          <div class="menu-item-content">
-            <h3>Lody waniliowe</h3>
-            <p>Domowe lody z prawdziwą wanilią</p>
-            <p class="menu-item-price">15 PLN</p>
-            <p class="menu-item-time">Czas przygotowania: 5 min</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    {% endfor %}
   </main>
 
   <script>
-    function showCategory(categoryId) {
-      // Ukryj wszystkie kategorie
-      document.querySelectorAll('.menu-category').forEach(category => {
-        category.style.display = 'none';
-      });
-      
-      // Pokaż wybraną kategorię
-      document.getElementById(categoryId).style.display = 'block';
-      
-      // Aktualizuj aktywne zakładki
-      document.querySelectorAll('.menu-tab').forEach(tab => {
-        tab.classList.remove('active');
-      });
+    function showCategory(event, categoryId) {
+      document.querySelectorAll('.menu-category').forEach(cat => cat.style.display = 'none');
+      const target = document.getElementById(categoryId.toLowerCase());
+      if (target) target.style.display = 'block';
+      document.querySelectorAll('.menu-tab').forEach(tab => tab.classList.remove('active'));
       event.target.classList.add('active');
     }
   </script>

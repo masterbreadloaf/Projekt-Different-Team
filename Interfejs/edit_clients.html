@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mKelner - Edytuj Klienta</title>
+  <link rel="stylesheet" href="css.css">
+</head>
+<body>
+  <aside>
+    <h2>mKelner</h2>
+    <nav>
+      <a href="menu.html">Menu</a>
+      <a href="order.html">Zamówienia</a>
+      <a href="clients.html" class="active">Klienci</a>
+      <a href="stats.html">Statystyka</a>
+      <a href="history.html">Historia Zamówień</a>
+      <a href="login.html" class="logout">Wyloguj się</a>
+    </nav>
+    <div class="tables" id="sideTables"></div>
+  </aside>
+
+  <main class="main">
+    <div class="client-form-container">
+      <h2>Edytuj dane klienta</h2>
+      <form id="editClientForm">
+        <input type="hidden" id="editClientId">
+        <div class="form-group">
+          <label for="editTableNumber">Nr stolika</label>
+          <input type="number" id="editTableNumber" required>
+        </div>
+        <div class="form-group">
+          <label for="editPhoto">Zdjęcie (URL)</label>
+          <input type="url" id="editPhoto" required>
+        </div>
+        <div class="form-group">
+          <label for="editName">Imię i nazwisko</label>
+          <input type="text" id="editName" required>
+        </div>
+        <div class="form-group">
+          <label for="editGender">Płeć</label>
+          <select id="editGender" required>
+            <option value="Kobieta">Kobieta</option>
+            <option value="Mężczyzna">Mężczyzna</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editAge">Wiek</label>
+          <input type="number" id="editAge" required>
+        </div>
+        <div class="form-group">
+          <label for="editAllergens">Alergeny</label>
+          <input type="text" id="editAllergens" placeholder="np. Gluten, laktoza">
+        </div>
+        <div class="form-group">
+          <label for="editStatus">Status</label>
+          <select id="editStatus" required>
+            <option value="active">Aktywny</option>
+            <option value="finished">Zakończony</option>
+          </select>
+        </div>
+        <button type="submit" class="btn">Zapisz zmiany</button>
+        <button type="button" class="btn delete-client-btn" onclick="deleteClient()">Usuń klienta</button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const clientId = urlParams.get('id');
+
+      if (!clientId) {
+        alert('Nie wybrano klienta do edycji.');
+        window.location.href = 'clients.html';
+        return;
+      }
+
+      // Load client data from localStorage
+      const storedClients = localStorage.getItem('clients');
+      if (!storedClients) {
+        alert('Brak danych klienta.');
+        window.location.href = 'clients.html';
+        return;
+      }
+
+      const clients = JSON.parse(storedClients);
+      const client = clients.find(c => c.id == clientId);
+
+      if (!client) {
+        alert('Klient nie znaleziony.');
+        window.location.href = 'clients.html';
+        return;
+      }
+
+      // Populate form with client data
+      document.getElementById('editClientId').value = client.id;
+      document.getElementById('editTableNumber').value = client.tableNumber;
+      document.getElementById('editPhoto').value = client.photo;
+      document.getElementById('editName').value = client.name;
+      document.getElementById('editGender').value = client.gender;
+      document.getElementById('editAge').value = client.age;
+      document.getElementById('editAllergens').value = client.allergens;
+      document.getElementById('editStatus').value = client.status;
+    });
+
+    document.getElementById('editClientForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const clientId = document.getElementById('editClientId').value;
+      const updatedClient = {
+        id: clientId,
+        tableNumber: document.getElementById('editTableNumber').value,
+        photo: document.getElementById('editPhoto').value,
+        name: document.getElementById('editName').value,
+        gender: document.getElementById('editGender').value,
+        age: document.getElementById('editAge').value,
+        allergens: document.getElementById('editAllergens').value || 'Brak',
+        status: document.getElementById('editStatus').value
+      };
+
+      // Update client in localStorage
+      const storedClients = localStorage.getItem('clients');
+      let clients = JSON.parse(storedClients);
+      clients = clients.map(client => client.id == clientId ? updatedClient : client);
+      localStorage.setItem('clients', JSON.stringify(clients));
+
+      alert('Dane klienta zostały zaktualizowane!');
+      window.location.href = 'clients.html';
+    });
+
+    function deleteClient() {
+      const clientId = document.getElementById('editClientId').value;
+      if (confirm('Czy na pewno chcesz usunąć tego klienta?')) {
+        const storedClients = localStorage.getItem('clients');
+        let clients = JSON.parse(storedClients);
+        clients = clients.filter(client => client.id != clientId);
+        localStorage.setItem('clients', JSON.stringify(clients));
+        alert('Klient został usunięty!');
+        window.location.href = 'clients.html';
+      }
+    }
+  </script>
+</body>
+</html>

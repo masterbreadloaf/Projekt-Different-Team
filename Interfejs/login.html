@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mKelner - Logowanie</title>
+  <link rel="stylesheet" href="css.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-header">
+      <div class="auth-logo">mKelner</div>
+      <h2>Logowanie do systemu</h2>
+    </div>
+    
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="Wprowadź email">
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Hasło</label>
+        <input type="password" id="password" name="password" required placeholder="Wprowadź hasło">
+        <div class="error-message" id="loginError">Nieprawidłowy email lub hasło</div>
+      </div>
+      
+      <button type="submit" class="btn">Zaloguj się</button>
+    </form>
+    
+    <div class="auth-footer">
+      Nie masz konta? <a href="register.html">Zarejestruj się</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorElement = document.getElementById('loginError');
+      
+      if (email === 'admin@mkelner.com' && password === 'admin') {
+        window.location.href = 'menu.html';
+      } else {
+        errorElement.style.display = 'block';
+        setTimeout(() => {
+          errorElement.style.display = 'none';
+        }, 3000);
+      }
+    });
+  </script>
+</body>
+</html>

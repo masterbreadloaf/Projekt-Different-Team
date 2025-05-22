@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mKelner - Rejestracja</title>
+  <link rel="stylesheet" href="css.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-header">
+      <div class="auth-logo">mKelner</div>
+      <h2>Rejestracja konta</h2>
+    </div>
+    
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="username">Nazwa użytkownika</label>
+        <input type="text" id="username" name="username" required placeholder="Wprowadź nazwę">
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="Wprowadź email">
+        <div class="error-message" id="emailError">Email jest już zajęty</div>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Hasło</label>
+        <input type="password" id="password" name="password" required placeholder="Wprowadź hasło">
+      </div>
+      
+      <div class="form-group">
+        <label for="confirmPassword">Potwierdź hasło</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Powtórz hasło">
+        <div class="error-message" id="passwordError">Hasła nie są identyczne</div>
+      </div>
+      
+      <button type="submit" class="btn">Zarejestruj się</button>
+    </form>
+    
+    <div class="auth-footer">
+      Masz już konto? <a href="login.html">Zaloguj się</a>
+    </div>
+    
+    <div class="success-message" id="registerSuccess">Rejestracja zakończona sukcesem! Przenoszenie do logowania...</div>
+  </div>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const passwordError = document.getElementById('passwordError');
+      const emailError = document.getElementById('emailError');
+      const successMessage = document.getElementById('registerSuccess');
+      
+      // Walidacja haseł
+      if (password !== confirmPassword) {
+        passwordError.style.display = 'block';
+        setTimeout(() => {
+          passwordError.style.display = 'none';
+        }, 3000);
+        return;
+      }
+      
+      // Tymczasowa walidacja - w rzeczywistości będzie zapytanie do API/Flask
+      if (email === 'admin@mkelner.com') {
+        emailError.style.display = 'block';
+        setTimeout(() => {
+          emailError.style.display = 'none';
+        }, 3000);
+        return;
+      }
+      
+      // Symulacja udanej rejestracji
+      successMessage.style.display = 'block';
+      setTimeout(() => {
+        window.location.href = 'login.html';
+      }, 2000);
+    });
+  </script>
+</body>
+</html>

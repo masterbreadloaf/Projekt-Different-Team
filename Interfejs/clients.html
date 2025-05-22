@@ -1,140 +1,10 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>mKelner</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f9f9f9;
-      display: flex;
-    }
-    aside {
-      width: 220px;
-      background: #f1f1f1;
-      padding: 20px;
-      height: 100vh;
-      position: fixed;
-    }
-    aside h2 {
-      margin-top: 0;
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
-    aside nav a {
-      display: block;
-      margin: 10px 0;
-      color: #000;
-      text-decoration: none;
-      padding: 8px;
-      border-radius: 4px;
-    }
-    aside nav a:hover {
-      background-color: #ddd;
-    }
-    aside nav a.active {
-      background-color: #ddd;
-      font-weight: bold;
-    }
-    aside a.logout {
-      display: block;
-      margin-top: 20px;
-      color: #000;
-      text-decoration: none;
-      padding: 8px;
-      border-radius: 4px;
-    }
-    aside a.logout:hover {
-      background-color: #ddd;
-    }
-    .tables button {
-      width: 100%;
-      margin: 8px 0;
-      padding: 8px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      text-align: left;
-    }
-    .tables button:hover {
-      opacity: 0.9;
-    }
-
-    .main {
-      flex: 1;
-      padding: 20px;
-      margin-left: 260px;
-    }
-    
-    /* Стилі для списку клієнтів */
-    .clients-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .search-bar {
-      padding: 8px;
-      width: 300px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    .clients-table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .clients-table th, .clients-table td {
-      padding: 12px 15px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    .clients-table th {
-      background-color: #f8f9fa;
-      font-weight: bold;
-    }
-    .clients-table tr:hover {
-      background-color: #f5f5f5;
-    }
-    .status-badge {
-      padding: 5px 10px;
-      border-radius: 20px;
-      font-size: 0.8em;
-      font-weight: bold;
-    }
-    .status-active {
-      background-color: #d4edda;
-      color: #155724;
-    }
-    .status-finished {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-    .client-photo {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    .action-btn {
-      padding: 5px 10px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-right: 5px;
-    }
-    .edit-btn {
-      background-color: #ffc107;
-      color: #212529;
-    }
-    .delete-btn {
-      background-color: #dc3545;
-      color: white;
-    }
-  </style>
+  <link rel="stylesheet" href="css.css">
 </head>
 <body>
   <aside>
@@ -144,23 +14,19 @@
       <a href="order.html">Zamówienia</a>
       <a href="clients.html" class="active">Klienci</a>
       <a href="stats.html">Statystyka</a>
-      <a href="tables.html">Zarządzanie stolikami</a>
+      <a href="history.html">Historia Zamówień</a>
+      <a href="login.html" class="logout">Wyloguj się</a>
     </nav>
-    
-    <div class="tables">
-      <button style="background:#d4edda">Stół 1 - Wolny</button>
-      <button style="background:#fff3cd">Stół 2 - Oczekuje</button>
-      <button style="background:#d4edda">Stół 3 - Gotowy</button>
-      <button style="background:#d4edda">Stół 4 - Wolny</button>
-    </div>
-    
-    <a href="#" class="logout">Wyloguj się</a>
+    <div class="tables" id="sideTables"></div>
   </aside>
 
   <main class="main">
     <div class="clients-header">
       <h1>Lista klientów</h1>
-      <input type="text" class="search-bar" placeholder="Wyszukaj klienta...">
+      <div>
+        <input type="text" class="search-bar" placeholder="Wyszukaj klienta...">
+        <button class="add-client-btn" onclick="window.location.href='add_clients.html'">Dodaj klienta</button>
+      </div>
     </div>
     
     <table class="clients-table">
@@ -176,8 +42,8 @@
           <th>Akcje</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
+      <tbody id="clientsTableBody">
+        <tr data-id="1">
           <td>2</td>
           <td><img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Klient" class="client-photo"></td>
           <td>Anna Kowalska</td>
@@ -186,11 +52,11 @@
           <td>Orzechy</td>
           <td><span class="status-badge status-active">Aktywny</span></td>
           <td>
-            <button class="action-btn edit-btn">Edytuj</button>
-            <button class="action-btn delete-btn">Usuń</button>
+            <button class="action-btn edit-btn" onclick="window.location.href='edit_clients.html?id=1'">Edytuj</button>
+            <button class="action-btn delete-btn" onclick="deleteClient(1)">Usuń</button>
           </td>
         </tr>
-        <tr>
+        <tr data-id="2">
           <td>1</td>
           <td><img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Klient" class="client-photo"></td>
           <td>Jan Nowak</td>
@@ -199,11 +65,11 @@
           <td>Brak</td>
           <td><span class="status-badge status-finished">Zakończony</span></td>
           <td>
-            <button class="action-btn edit-btn">Edytuj</button>
-            <button class="action-btn delete-btn">Usuń</button>
+            <button class="action-btn edit-btn" onclick="window.location.href='edit_clients.html?id=2'">Edytuj</button>
+            <button class="action-btn delete-btn" onclick="deleteClient(2)">Usuń</button>
           </td>
         </tr>
-        <tr>
+        <tr data-id="3">
           <td>3</td>
           <td><img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Klient" class="client-photo"></td>
           <td>Maria Wiśniewska</td>
@@ -212,11 +78,11 @@
           <td>Gluten, laktoza</td>
           <td><span class="status-badge status-active">Aktywny</span></td>
           <td>
-            <button class="action-btn edit-btn">Edytuj</button>
-            <button class="action-btn delete-btn">Usuń</button>
+            <button class="action-btn edit-btn" onclick="window.location.href='edit_clients.html?id=3'">Edytuj</button>
+            <button class="action-btn delete-btn" onclick="deleteClient(3)">Usuń</button>
           </td>
         </tr>
-        <tr>
+        <tr data-id="4">
           <td>5</td>
           <td><img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Klient" class="client-photo"></td>
           <td>Piotr Lewandowski</td>
@@ -225,8 +91,8 @@
           <td>Brak</td>
           <td><span class="status-badge status-active">Aktywny</span></td>
           <td>
-            <button class="action-btn edit-btn">Edytuj</button>
-            <button class="action-btn delete-btn">Usuń</button>
+            <button class="action-btn edit-btn" onclick="window.location.href='edit_clients.html?id=4'">Edytuj</button>
+            <button class="action-btn delete-btn" onclick="deleteClient(4)">Usuń</button>
           </td>
         </tr>
       </tbody>
@@ -234,28 +100,24 @@
   </main>
 
   <script>
-    // Sortowanie tabeli po numerze stolika
+    // Sorting and searching functionality
     document.addEventListener('DOMContentLoaded', function() {
       const table = document.querySelector('.clients-table');
       const tbody = table.querySelector('tbody');
       const rows = Array.from(tbody.querySelectorAll('tr'));
       
-      // Sortowanie wierszy według numeru stolika
       rows.sort((a, b) => {
         const aNum = parseInt(a.cells[0].textContent);
         const bNum = parseInt(b.cells[0].textContent);
         return aNum - bNum;
       });
       
-      // Usunięcie istniejących wierszy
       while (tbody.firstChild) {
         tbody.removeChild(tbody.firstChild);
       }
       
-      // Dodanie posortowanych wierszy
       rows.forEach(row => tbody.appendChild(row));
       
-      // Funkcja wyszukiwania
       const searchInput = document.querySelector('.search-bar');
       searchInput.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
@@ -271,7 +133,48 @@
           }
         });
       });
+
+      // Load clients from localStorage if available
+      const storedClients = localStorage.getItem('clients');
+      if (storedClients) {
+        const clients = JSON.parse(storedClients);
+        tbody.innerHTML = '';
+        clients.forEach(client => {
+          const row = document.createElement('tr');
+          row.setAttribute('data-id', client.id);
+          row.innerHTML = `
+            <td>${client.tableNumber}</td>
+            <td><img src="${client.photo}" alt="Klient" class="client-photo"></td>
+            <td>${client.name}</td>
+            <td>${client.gender}</td>
+            <td>${client.age}</td>
+            <td>${client.allergens}</td>
+            <td><span class="status-badge status-${client.status}">${client.status === 'active' ? 'Aktywny' : 'Zakończony'}</span></td>
+            <td>
+              <button class="action-btn edit-btn" onclick="window.location.href='edit_clients.html?id=${client.id}'">Edytuj</button>
+              <button class="action-btn delete-btn" onclick="deleteClient(${client.id})">Usuń</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
     });
+
+    // Delete client functionality
+    function deleteClient(clientId) {
+      if (confirm('Czy na pewno chcesz usunąć tego klienta?')) {
+        const row = document.querySelector(`tr[data-id="${clientId}"]`);
+        row.remove();
+
+        // Update localStorage
+        const storedClients = localStorage.getItem('clients');
+        if (storedClients) {
+          let clients = JSON.parse(storedClients);
+          clients = clients.filter(client => client.id != clientId);
+          localStorage.setItem('clients', JSON.stringify(clients));
+        }
+      }
+    }
   </script>
 </body>
 </html>
