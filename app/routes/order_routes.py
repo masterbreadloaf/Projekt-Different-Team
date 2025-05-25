@@ -6,6 +6,7 @@ from services.order_service import (
     mark_order_as_paid, update_order, update_table_status,
     get_all_orders_with_details
 )
+from db import get_connection
 
 order_routes = Blueprint('order_routes', __name__)
 

@@ -32,7 +32,7 @@ def get_orders_by_filters(filters):
 
     cursor.execute(f"""
         SELECT z.ZAM_IdZamowienia, z.ZAM_DataZamowienia, z.ZAM_LacznaKwota,
-               z.ZAM_Status, z.ZAM_Oplacone, s.STO_Numer
+               z.ZAM_Status, z.ZAM_Oplacone, s.STO_Numer, ZAM_Komentarz
         FROM zamowienia z
         JOIN stoliki s ON z.STO_IdStolika = s.STO_IdStolika
         WHERE {where_clause}
@@ -59,6 +59,7 @@ def get_orders_by_filters(filters):
             'status': order[3],
             'paid': bool(order[4]),
             'table': order[5],
+            'comment': order[6] or "",
             'items': [
                 {
                     'name': item[0],

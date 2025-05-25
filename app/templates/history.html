@@ -1,14 +1,11 @@
+<!-- templates/history.html -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <title>Historia zamówień</title>
-  <style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/css.css') }}">
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { padding: 10px; border: 1px solid #ccc; }
-    details summary { cursor: pointer; font-weight: bold; }
-  </style>
+  <title>mKelner - Historia zamówień</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/css.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
   <aside>
@@ -16,111 +13,111 @@
     <nav>
       <a href="{{ url_for('menu_page') }}">Menu</a>
       <a href="{{ url_for('order_page') }}">Zamówienia</a>
-      <a href="{{ url_for('clients_page') }}">Klienci</a>
+      <a href="{{ url_for('users_page') }}">Użytkownicy</a>
       <a href="{{ url_for('stats_page') }}">Statystyka</a>
       <a href="{{ url_for('order_routes.history_page') }}" class="active">Historia Zamówień</a>
     </nav>
-
     <div class="tables" id="sideTables"></div>
   </aside>
-  <h1>Historia zamówień</h1>
-   <form onsubmit="loadHistory(); return false;" style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-    <label>Od: <input type="date" id="startDate"></label>
-    <label>Do: <input type="date" id="endDate"></label>
-    <label>Stolik: <input type="number" id="tableFilter" min="1" style="width: 60px;"></label>
-    <label>Status:
-      <select id="paidFilter">
-        <option value="">Wszystkie</option>
-        <option value="1">Opłacone</option>
-        <option value="0">Nieopłacone</option>
-      </select>
-    </label>
-    <label>Kwota od: <input type="number" id="amountMin" step="0.01" style="width: 80px;"></label>
-    <label>do: <input type="number" id="amountMax" step="0.01" style="width: 80px;"></label>
-    <button type="submit">Filtruj</button>
-    <button type="button" onclick="clearFilters()">Wyczyść</button>
-  </form>
 
+  <main class="main">
+    <h1>Historia zamówień</h1>
+    <form onsubmit="loadHistory(); return false;" class="history-header">
+      <label>Od: <input type="date" id="startDate"></label>
+      <label>Do: <input type="date" id="endDate"></label>
+      <label>Stolik: <input type="number" id="tableFilter" min="1" style="width: 60px;"></label>
+      <label>Status:
+        <select id="paidFilter">
+          <option value="">Wszystkie</option>
+          <option value="1">Opłacone</option>
+          <option value="0">Nieopłacone</option>
+        </select>
+      </label>
+      <label>Kwota od: <input type="number" id="amountMin" step="0.01" style="width: 80px;"></label>
+      <label>do: <input type="number" id="amountMax" step="0.01" style="width: 80px;"></label>
+      <button type="submit">Filtruj</button>
+      <button type="button" onclick="clearFilters()">Wyczyść</button>
+    </form>
 
-  <table id="ordersTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Data</th>
-        <th>Stolik</th>
-        <th>Status</th>
-        <th>Opłacone</th>
-        <th>Suma</th>
-        <th>Szczegóły</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <table class="history-table" id="ordersTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Data</th>
+          <th>Stolik</th>
+          <th>Status</th>
+          <th>Opłacone</th>
+          <th>Suma</th>
+          <th>Komentarz</th>
+          <th>Szczegóły</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
 
   <script>
-async function loadHistory() {
-  const params = new URLSearchParams();
+    async function loadHistory() {
+      const params = new URLSearchParams();
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+      const table = document.getElementById('tableFilter').value;
+      const paid = document.getElementById('paidFilter').value;
+      const min = document.getElementById('amountMin').value;
+      const max = document.getElementById('amountMax').value;
 
-  const start = document.getElementById('startDate').value;
-  const end = document.getElementById('endDate').value;
-  const table = document.getElementById('tableFilter').value;
-  const paid = document.getElementById('paidFilter').value;
-  const min = document.getElementById('amountMin').value;
-  const max = document.getElementById('amountMax').value;
+      if (start) params.append('start', start);
+      if (end) params.append('end', end);
+      if (table) params.append('table', table);
+      if (paid !== "") params.append('paid', paid);
+      if (min) params.append('min', min);
+      if (max) params.append('max', max);
 
-  if (start) params.append('start', start);
-  if (end) params.append('end', end);
-  if (table) params.append('table', table);
-  if (paid !== "") params.append('paid', paid);
-  if (min) params.append('min', min);
-  if (max) params.append('max', max);
+      const res = await fetch(`/api/history?${params.toString()}`);
+      const data = await res.json();
 
-  const res = await fetch(`/api/history?${params.toString()}`);
-  const data = await res.json();
+      const tbody = document.querySelector("#ordersTable tbody");
+      tbody.innerHTML = '';
 
-  const tbody = document.querySelector("#ordersTable tbody");
-  tbody.innerHTML = '';
+      data.forEach(order => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${order.id}</td>
+          <td>${new Date(order.date).toLocaleString()}</td>
+          <td>${order.table}</td>
+          <td>${order.status}</td>
+          <td>${order.paid ? "✅" : "❌"}</td>
+          <td>${order.total.toFixed(2)} PLN</td>
+          <td>${order.comment || "–"}</td>
+          <td>
+            <details>
+              <summary>Pozycje (${order.items.length})</summary>
+              <ul>
+                ${order.items.map(i => `<li>${i.qty}x ${i.name} – ${i.total.toFixed(2)} PLN</li>`).join('')}
+              </ul>
+            </details>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
 
-  data.forEach(order => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${order.id}</td>
-      <td>${new Date(order.date).toLocaleString()}</td>
-      <td>${order.table}</td>
-      <td>${order.status}</td>
-      <td>${order.paid ? "✅" : "❌"}</td>
-      <td>${order.total.toFixed(2)} PLN</td>
-      <td>
-        <details>
-          <summary>Pozycje (${order.items.length})</summary>
-          <ul>
-            ${order.items.map(i => `<li>${i.qty}x ${i.name} – ${i.total.toFixed(2)} PLN</li>`).join('')}
-          </ul>
-        </details>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+    window.onload = () => {
+      const today = new Date().toISOString().split("T")[0];
+      document.getElementById("startDate").value = today;
+      document.getElementById("endDate").value = today;
+      loadHistory();
+    };
 
-
-// ustaw dzisiejszy domyślny zakres
-window.onload = () => {
-  const today = new Date().toISOString().split("T")[0];
-  document.getElementById("startDate").value = today;
-  document.getElementById("endDate").value = today;
-  loadHistory();
-};
-
-function clearFilters() {
-  document.getElementById('startDate').value = '';
-  document.getElementById('endDate').value = '';
-  document.getElementById('tableFilter').value = '';
-  document.getElementById('paidFilter').value = '';
-  document.getElementById('amountMin').value = '';
-  document.getElementById('amountMax').value = '';
-  loadHistory();
-}
-</script>
+    function clearFilters() {
+      document.getElementById('startDate').value = '';
+      document.getElementById('endDate').value = '';
+      document.getElementById('tableFilter').value = '';
+      document.getElementById('paidFilter').value = '';
+      document.getElementById('amountMin').value = '';
+      document.getElementById('amountMax').value = '';
+      loadHistory();
+    }
+  </script>
 </body>
 </html>

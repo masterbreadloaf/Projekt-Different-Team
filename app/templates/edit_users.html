@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edytuj użytkownika</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/css.css') }}">
+  <style>
+    .btn { padding: 10px 20px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
+    .btn-primary { background-color: #28a745; color: #fff; }
+    .btn-secondary { background-color: #6c757d; color: white; text-decoration: none; }
+    .btn-delete { background-color: #dc3545; color: white; margin-left: auto; }
+    .message { margin-top: 10px; color: green; }
+    .form-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .form {
+      max-width: 600px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form label {
+      margin: 12px 0 4px;
+      font-weight: bold;
+    }
+
+    .form input, .form select {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .full-width {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+  </style>
+</head>
+<body>
+  <aside>
+    <h2>mKelner</h2>
+    <nav>
+      <a href="{{ url_for('menu_page') }}">Menu</a>
+      <a href="{{ url_for('order_page') }}">Zamówienia</a>
+      <a href="{{ url_for('users_page') }}" class="active">Użytkownicy</a>
+      <a href="{{ url_for('stats_page') }}">Statystyka</a>
+      <a href="{{ url_for('order_routes.history_page') }}">Historia Zamówień</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+  <h1>Edytuj użytkownika</h1>
+
+  <form id="editForm" class="form-container">
+    <div class="form">
+      <label for="login">Login</label>
+      <input type="text" id="login" required>
+
+      <label for="password">Hasło</label>
+      <input type="text" id="password" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" required>
+
+      <label for="type">Typ konta</label>
+      <select id="type" required>
+        <option value="">Wybierz...</option>
+        <option value="Admin">Admin</option>
+        <option value="Kelner">Kelner</option>
+        <option value="Klient">Klient</option>
+      </select>
+
+      <label for="active">Aktywny</label>
+      <select id="active">
+        <option value="1">Tak</option>
+        <option value="0">Nie</option>
+      </select>
+
+      <div class="btn-row">
+        <a href="/users" class="btn btn-secondary">Powrót</a>
+        <button type="button" class="btn btn-delete" onclick="deleteUser()">Usuń</button>
+        <button type="submit" class="btn btn-primary full-width">Zapisz zmiany</button>
+      </div>
+    </div>
+  </form>
+</main>
+
+
+  <script>
+    const id = window.location.pathname.split('/').pop();
+
+    async function loadUser() {
+      const res = await fetch(`/api/users/${id}`);
+      const user = await res.json();
+
+      document.getElementById('login').value = user.login;
+      document.getElementById('password').value = user.password;
+      document.getElementById('email').value = user.email;
+      document.getElementById('type').value = user.type;
+      document.getElementById('active').value = user.active ? '1' : '0';
+    }
+
+
+    document.getElementById('editUserForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        id: parseInt(id),
+        login: document.getElementById('login').value,
+        password: document.getElementById('password').value,
+        email: document.getElementById('email').value,
+        type: document.getElementById('type').value,
+        active: parseInt(document.getElementById('active').value)
+      };
+
+      const res = await fetch(`/api/users/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        document.getElementById('msgBox').innerText = '✅ Dane zaktualizowane';
+      } else {
+        document.getElementById('msgBox').innerText = '❌ Błąd aktualizacji danych';
+      }
+    });
+
+    async function deleteUser() {
+      if (!confirm('Czy na pewno chcesz usunąć tego użytkownika?')) return;
+      const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+
+      if (res.ok) {
+        alert('✅ Użytkownik usunięty');
+        window.location.href = '/users';
+      } else {
+        alert('❌ Błąd przy usuwaniu użytkownika');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadUser);
+  </script>
+</body>
+</html>

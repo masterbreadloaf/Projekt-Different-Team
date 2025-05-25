@@ -1,0 +1,194 @@
+<!-- templates/clients.html -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>mKelner – Klienci</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/css.css') }}">
+  <style>
+    .btn {
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+    }
+
+    .btn-edit {
+      background-color: #ffc107;
+      color: #000;
+    }
+
+    .btn-delete {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+    .btn-primary {
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      width: 130px;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .search-and-title {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 240px;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      background: #fff;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .styled-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .styled-table th, .styled-table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .actions-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .controls-bar {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      align-items: center;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <h2>mKelner</h2>
+    <nav>
+      <a href="{{ url_for('menu_page') }}">Menu</a>
+      <a href="{{ url_for('order_page') }}">Zamówienia</a>
+      <a href="{{ url_for('users_page') }}" class="active">Użytkownicy</a>
+      <a href="{{ url_for('stats_page') }}">Statystyka</a>
+      <a href="{{ url_for('order_routes.history_page') }}">Historia Zamówień</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+  <div class="header-bar">
+    <h1>Lista użytkowników</h1>
+    <div class="actions-right">
+      <input type="text" class="search-input" id="searchInput" placeholder="Szukaj użytkownika...">
+      <a href="{{ url_for('users_page') }}" class="btn btn-primary">Dodaj użytkownika</a>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="styled-table">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Login</th>
+        <th>Email</th>
+        <th>Rola</th>
+        <th>Data utworzenia</th>
+        <th>Status</th>
+        <th>Akcje</th>
+      </tr>
+    </thead>
+    <tbody id="usersTableBody"></tbody>
+
+    </table>
+  </div>
+</main>
+
+
+<script>
+  let usersData = [];
+
+  async function loadUsers() {
+    const res = await fetch('/api/users');
+    usersData = await res.json();
+    renderUsers(usersData);
+  }
+
+  function renderUsers(users) {
+    const tbody = document.getElementById('usersTableBody');
+    tbody.innerHTML = '';
+
+    users.forEach(user => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${user.id}</td>
+        <td>${user.login}</td>
+        <td>${user.email}</td>
+        <td>${user.type}</td>
+        <td>${user.created ? new Date(user.created.replace('T', ' ')).toLocaleString() : '—'}</td>
+        <td>${user.active ? "✅" : "❌"}</td>
+        <td>
+          <button class="btn btn-edit" onclick="editUser(${user.id})">Edytuj</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+
+
+  function editUser(id) {
+    window.location.href = `/users/edit/${id}`;
+  }
+
+  async function deleteUser(id) {
+    if (confirm('Czy na pewno chcesz usunąć użytkownika?')) {
+      await fetch(`/api/users/${id}`, { method: 'DELETE' });
+      loadUsers();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadUsers();
+    document.getElementById('searchInput').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase();
+      const filtered = usersData.filter(u => u.username.toLowerCase().includes(q));
+      renderUsers(filtered);
+    });
+  });
+
+</script>
+</body>
+</html>

@@ -6,7 +6,13 @@ def get_available_menu():
     cursor = conn.cursor()
     cursor.execute("""
         SELECT m.MEN_IdPozycji, m.MEN_Nazwa, m.MEN_Cena, m.MEN_CzasPrzygotowania,
-               m.MEN_Kategoria, z.ZDJ_NazwaPliku
+               m.MEN_Kategoria, z.ZDJ_NazwaPliku,
+               ISNULL(STUFF((
+                 SELECT ',' + a.ALR_Nazwa
+                 FROM menuAlergeny ma
+                 JOIN alergeny a ON ma.ALR_IdAlergenu = a.ALR_IdAlergenu
+                 WHERE ma.MEN_IdPozycji = m.MEN_IdPozycji
+                 FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, ''), '') AS alergeny
         FROM menu m
         LEFT JOIN zdjeciamenu z ON m.MEN_IdPozycji = z.MEN_IdPozycji
         WHERE m.MEN_Dostepnosc = 1
@@ -22,7 +28,8 @@ def get_available_menu():
             'name': row[1],
             'price': float(row[2]),
             'prep_time': int(row[3]),
-            'image': f'/static/images/menu/{row[5]}' if row[5] else '/static/images/menu/placeholder.jpg'
+            'image': f'/static/images/menu/{row[5]}' if row[5] else '/static/images/menu/placeholder.jpg',
+            'allergens': row[6].split(',') if row[6] else []  # ⬅️ TU DODAJ
         }
         menu.setdefault(category, []).append(item)
     return menu
@@ -51,24 +58,53 @@ def save_order(order_data):
     total = order_data["total"]
     prep_time = order_data["prep_time"]
 
+    comment = order_data.get("comment", "")
+
+    # 1. Obsługa klienta
+    client = order_data.get("client", {})
+    client_id = None
+
+    if client and client.get("phone"):
+        phone = client["phone"]
+        cursor.execute("SELECT KLI_IdKlienta FROM klienci WHERE KLI_Kontakt = ?", (phone,))
+        row = cursor.fetchone()
+
+        if row:
+            client_id = row[0]
+        else:
+            cursor.execute("""
+                INSERT INTO klienci (KLI_Nazwa, KLI_Kontakt, KLI_Preferencje)
+                OUTPUT INSERTED.KLI_IdKlienta
+                VALUES (?, ?, ?)
+            """, (client.get("name"), phone, client.get("preferences", "")))
+            client_id = cursor.fetchone()[0]
+
+
+    # 2. Wstawienie zamówienia z KLI_IdKlienta
     cursor.execute("""
-        INSERT INTO zamowienia (ZAM_DataZamowienia, ZAM_LacznaKwota, ZAM_Oplacone, ZAM_Status, STO_IdStolika)
+        INSERT INTO zamowienia (
+        ZAM_DataZamowienia, ZAM_LacznaKwota, ZAM_Oplacone,
+        ZAM_Status, STO_IdStolika, KLI_IdKlienta, ZAM_Komentarz
+        )
         OUTPUT INSERTED.ZAM_IdZamowienia
-        VALUES (GETDATE(), ?, 0, 'Złożone', ?)
-    """, (total, table_id))
+        VALUES (GETDATE(), ?, 0, 'Złożone', ?, ?, ?)
+    """, (total, table_id, client_id, comment))
     order_id = cursor.fetchone()[0]
 
+    # 3. Wstawienie szczegółów
     for item in order_data["items"]:
         cursor.execute("""
             INSERT INTO szczegolyzamowienia (ZAM_IdZamowienia, MEN_IdPozycji, SZAM_Ilosc, SZAM_CenaWZamowieniu)
             VALUES (?, ?, ?, ?)
         """, (order_id, item["id"], item["qty"], item["total_price"]))
 
+    # 4. Kuchnia
     cursor.execute("""
         INSERT INTO kuchnia (ZAM_IdZamowienia, KCH_Status, KCH_CzasPrzygotowania)
         VALUES (?, 'Oczekujące', ?)
     """, (order_id, prep_time))
 
+    # 5. Aktualizacja statusów
     cursor.execute("UPDATE stoliki SET STO_Status = 'OJ' WHERE STO_IdStolika = ?", (table_id,))
     cursor.execute("""
         UPDATE rezerwacjestolika SET REZ_Status = 'Zrealizowana'
@@ -102,7 +138,7 @@ def get_last_order_by_table(table_id):
 
     # ostatnie zamówienie
     cursor.execute("""
-        SELECT TOP 1 ZAM_IdZamowienia, ZAM_LacznaKwota
+        SELECT TOP 1 ZAM_IdZamowienia, ZAM_LacznaKwota, ZAM_Komentarz
         FROM zamowienia
         WHERE STO_IdStolika = ?
         ORDER BY ZAM_IdZamowienia DESC
@@ -114,7 +150,8 @@ def get_last_order_by_table(table_id):
         conn.close()
         return {}
 
-    order_id, total = row
+    order_id, total, comment = row
+
 
     # szczegóły zamówienia (pełne info)
     cursor.execute("""
@@ -137,6 +174,7 @@ def get_last_order_by_table(table_id):
     return {
         'id': order_id,
         'total': float(total),
+        'comment': comment,
         'items': [
             {
                 'id': item[1],
@@ -177,7 +215,7 @@ def get_all_orders_with_details():
 
     cursor.execute("""
         SELECT z.ZAM_IdZamowienia, z.ZAM_DataZamowienia, z.ZAM_LacznaKwota,
-               z.ZAM_Status, z.ZAM_Oplacone, s.STO_Numer
+           z.ZAM_Status, z.ZAM_Oplacone, s.STO_Numer, z.ZAM_Komentarz
         FROM zamowienia z
         JOIN stoliki s ON z.STO_IdStolika = s.STO_IdStolika
         ORDER BY z.ZAM_IdZamowienia DESC
@@ -202,6 +240,7 @@ def get_all_orders_with_details():
             'status': order[3],
             'paid': bool(order[4]),
             'table': order[5],
+            'comment': order[6] or "",
             'items': [
                 {
                     'name': item[0],

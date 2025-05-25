@@ -27,15 +27,19 @@
     .client-section input,
     .client-section select { width: 100%; box-sizing: border-box; }
     .info-red { color: #b00020; font-weight: bold; }
+    #allergyList label {display: inline-block;width: 100%;padding: 4px 0;}
+    #allergyList input[type="checkbox"] {margin-right: 8px;transform: scale(1.2);vertical-align: middle;
   </style>
 </head>
+<script>var menuData = {};</script>
+<script>menuData = {{ menu|tojson }};</script>
 <body>
   <aside>
     <h2>mKelner</h2>
     <nav>
       <a href="{{ url_for('menu_page') }}">Menu</a>
       <a href="{{ url_for('order_page') }}" class="active">Zamówienia</a>
-      <a href="{{ url_for('clients_page') }}">Klienci</a>
+      <a href="{{ url_for('users_page') }}">Użytkownicy</a>
       <a href="{{ url_for('stats_page') }}">Statystyka</a>
       <a href="{{ url_for('order_routes.history_page') }}">Historia Zamówień</a>
     </nav>
@@ -48,6 +52,7 @@
 
     <label for="tableSelect"><strong>Stolik:</strong></label>
     <select id="tableSelect"></select>
+    <br><br><br>
 
     <div class="order-wrapper">
       <div class="category-tabs">
@@ -79,7 +84,14 @@
           <p><strong>Suma:</strong> <span id="totalAmount">0</span> PLN</p>
           <p><strong>Czas przygotowania:</strong> <span id="totalTime">0</span> min</p>
 
+          <br><br>
+          <label for="orderComment"><strong>Preferencje / komentarz:</strong></label>
+            <textarea id="orderComment" rows="2" style="width: 100%;"></textarea>
+
+          <br><br>
+
           <button id="submitOrder">Wyślij do kuchni</button>
+          <br><br>
           <button id="markPaid" style="display:none">✅ Oznacz jako opłacone</button>
 
           <button id="reserveButton" style="display:none" onclick="updateStatus(tableSelect.value, 'RE')">
@@ -98,19 +110,20 @@
 
           <div class="success-message" id="successMessage">Zamówienie wysłane!</div>
           <p id="tableNote" class="info-red"></p>
+
         </div>
 
         <div class="client-section">
-          <h3>Dane klienta</h3>
-          <label>Płeć:
-            <select><option>Kobieta</option><option>Mężczyzna</option></select>
-          </label><br><br>
-          <label>Wiek: <input type="number" value="30"></label><br><br>
           <label>Alergeny:</label>
           <div id="allergyList"></div>
-          <p class="recommendation">Polecamy: <strong>–</strong></p>
+          <br>
+          <ul id="allergenResults"></ul>
+          <div><strong>Tego unikaj:</strong>
+            <ul id="recommendations" style="margin: 6px 0; padding-left: 18px;"></ul>
+          </div>
+
         </div>
-      </div>
+
     </div>
   </main>
 
@@ -157,11 +170,13 @@ function updateSummary() {
 async function submitOrder() {
   if (order.length === 0) return alert("Zamówienie jest puste.");
   const tableId = parseInt(document.getElementById('tableSelect').value);
+
   const payload = {
     table_id: tableId,
     items: order,
     total: parseFloat(document.getElementById('totalAmount').innerText),
-    prep_time: parseInt(document.getElementById('totalTime').innerText)
+    prep_time: parseInt(document.getElementById('totalTime').innerText),
+    comment: document.getElementById('orderComment').value
   };
 
   const endpoint = currentOrderId ? `/api/orders/${currentOrderId}` : '/api/order';
@@ -174,11 +189,11 @@ async function submitOrder() {
   });
 
   if (res.ok) {
-  const data = await res.json();
-  currentOrderId = data.order_id ?? currentOrderId;
-  await loadTables();
-  await handleTableClick(tableId, 'OJ'); // Załaduj dane z bazy
-  document.getElementById('successMessage').style.display = 'block';
+    const data = await res.json();
+    currentOrderId = data.order_id ?? currentOrderId;
+    await loadTables();
+    await handleTableClick(tableId, 'OJ');
+    document.getElementById('successMessage').style.display = 'block';
   } else {
     alert("Błąd przy wysyłaniu zamówienia.");
   }
@@ -191,6 +206,9 @@ async function markAsPaid() {
   currentOrderId = null;
   order = [];
   updateSummary();
+
+  document.getElementById('orderComment').value = '';
+  
   await loadTables();
 }
 
@@ -253,6 +271,8 @@ async function handleTableClick(id, status) {
   const releaseBtn = document.getElementById('releaseReservation');
   const markPaidBtn = document.getElementById('markPaid');
 
+  document.getElementById('orderComment').value = '';
+
   order = [];
   currentOrderId = null;
   updateSummary();
@@ -286,6 +306,9 @@ async function handleTableClick(id, status) {
       prep_time: i.prep_time ?? 10
     }));
 
+    document.getElementById('orderComment').value = data.comment || '';
+
+
     updateSummary();
     markPaidBtn.style.display = 'block';
   }
@@ -296,11 +319,59 @@ async function loadAlergeny() {
   const data = await res.json();
   const list = document.getElementById('allergyList');
   list.innerHTML = '';
+
+  const table = document.createElement('table');
+  table.style.width = '100%';
+  table.style.borderCollapse = 'collapse';
+
   data.forEach(al => {
-    const checkbox = document.createElement('label');
-    checkbox.innerHTML = `<input type="checkbox" name="alergeny" value="${al}"> ${al}<br>`;
-    list.appendChild(checkbox);
+    const row = document.createElement('tr');
+    const cellCheck = document.createElement('td');
+    const cellLabel = document.createElement('td');
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.name = 'alergeny';
+    checkbox.value = al;
+
+    cellCheck.appendChild(checkbox);
+    cellLabel.innerText = al;
+
+    row.appendChild(cellCheck);
+    row.appendChild(cellLabel);
+    table.appendChild(row);
   });
+
+  list.appendChild(table);
+
+  document.querySelectorAll('input[name="alergeny"]').forEach(cb => {
+    cb.addEventListener('change', updateRecommendations);
+  });
+
+}
+
+function updateRecommendations() {
+  const selected = Array.from(document.querySelectorAll('input[name="alergeny"]:checked')).map(cb => cb.value);
+
+  const list = document.getElementById('recommendations');
+
+  if (selected.length === 0) {
+    list.innerHTML = '<li>–</li>';
+    return;
+  }
+
+  const riskyItems = [];
+  for (const category of Object.values(menuData)) {
+    for (const item of category) {
+      if (item.allergens && selected.some(al => item.allergens.includes(al))) {
+        riskyItems.push(item.name);
+      }
+    }
+  }
+
+  list.innerHTML = riskyItems.length
+    ? riskyItems.map(name => `<li>${name}</li>`).join('')
+    : '<li>Brak konfliktów</li>';
 }
 
 // Init

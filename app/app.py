@@ -14,6 +14,9 @@ app.register_blueprint(history_routes)
 from routes.stats_routes import stats_routes
 app.register_blueprint(stats_routes)
 
+from routes.users_routes import users_routes
+app.register_blueprint(users_routes)
+
 @app.route('/')
 def index():
     return render_template('menu.html', menu=get_menu_data())
@@ -27,17 +30,17 @@ def menu_page():
 def order_page():
     return render_template('order.html')
 
-@app.route('/clients')
-def clients_page():
-    return render_template('clients.html')
+@app.route('/users')
+def users_page():
+    return render_template('users.html')
 
 @app.route('/stats')
 def stats_page():
     return render_template('stats.html')
 
-@app.route('/tables')
-def tables_page():
-    return render_template('tables.html')
+@app.route('/users/edit/<int:client_id>')
+def edit_client_page(client_id):
+    return render_template('edit_users.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
