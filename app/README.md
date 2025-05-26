@@ -1,1 +1,1 @@
-To jest folder z właściwą aplikacją
+To jest folder z właściwą aplikacją. Dokładniejsze instrukcje są w pliku w lokalizacji database/readme

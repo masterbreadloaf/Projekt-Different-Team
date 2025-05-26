@@ -79,61 +79,49 @@ python app.py
 aplikacja będzie dostępna w przeglądarce pod adresem 127.0.0.1:5000 lub localhost:5000
 
 -----------------------------------------
-Proponowana struktura plików:
+Struktura plików:
 
-app/ - Główna struktura aplikacji restauracyjnej opartej na Flask, MS SQL Server i Bootstrap.
-
-├── app.py
-    - Główna aplikacja Flask, uruchamiana lokalnie.
-    - Rejestruje blueprinty (moduły), inicjuje serwer.
-
-├── db.py
-    - Zawiera funkcję get_connection() do łączenia się z bazą przez ODBC (pyodbc).
-    - Ładuje dane z .env (np. DRIVER, SERVER, UID).
-
-├── .env
-    - Plik konfiguracyjny z danymi dostępowymi do bazy danych (MS SQL Server).
-
-├── requirements.txt
-    - Lista wymaganych bibliotek (Flask, pyodbc, python-dotenv itd.).
-
-├── README.md
-    - Opis projektu, instrukcje uruchomienia, uwagi dla zespołu.
-
-├── auth/
-│   ├── auth_routes.py
-│   │   - Obsługa tras logowania (/login) i wylogowania (/logout).
-│   └── auth_service.py
-│       - Walidacja użytkownika, sprawdzanie hasła w bazie.
-
-├── routes/
-│   ├── table_routes.py - Trasy do zarządzania stolikami.
-│   ├── menu_routes.py - Trasy do zarządzania menu.
-│   ├── order_routes.py - Trasy do zamówień.
-│   ├── client_routes.py - Trasy do klientów.
-│   └── stats_routes.py - Trasy do statystyk.
-
-├── services/
-│   ├── table_service.py - Logika dotycząca stolików.
-│   ├── menu_service.py - Logika menu.
-│   ├── order_service.py - Obsługa operacji zamówień.
-│   ├── client_service.py - Obsługa danych klientów.
-│   └── stats_service.py - Obliczenia statystyczne.
-
-├── templates/
-│   ├── base.html - Główny szablon HTML z menu bocznym.
-│   ├── login.html - Formularz logowania.
-│   ├── tables.html - Widok zarządzania stolikami.
-│   ├── menu.html - Widok menu.
-│   ├── orders.html - Widok zamówień.
-│   ├── clients.html - Widok klientów.
-│   └── stats.html - Widok statystyk.
-
-├── static/
+app/
+│
+├── app.py                 # Główna aplikacja Flask — inicjalizacja aplikacji i rejestracja blueprintów
+├── db.py                  # Łączenie z bazą danych MSSQL (przez pyodbc, .env)
+├── .env                   # Zmienne środowiskowe (połączenie do bazy - DRIVER, Server, Database, Trusted Connections)
+├── requirements.txt       # Lista zależności
+├── README.md              # Dokumentacja projektu
+├── test.py                # Test połączenia z bazą
+├── testapp.py             # Alternatywny / testowy punkt wejścia
+│
+├── routes/                # Endpointy HTTP – logika tras
+│   ├── auth_routes.py         # Logowanie i wylogowanie użytkowników, sesje
+│   ├── history_routes.py      # Historia zamówień
+│   ├── menu_routes.py         # Wyświetlanie i zarządzanie pozycjami menu
+│   ├── order_routes.py        # Obsługa zamówień (dodawanie, modyfikacja, statusy)
+│   ├── stats_routes.py        # API i widok dla statystyk
+│   └── users_routes.py        # Zarządzanie użytkownikami (CRUD)
+│
+├── services/              # Logika oddzielona od warstwy tras
+│   ├── history_service.py     # Pobieranie i filtrowanie historii zamówień
+│   ├── menu_service.py        # Operacje na pozycjach menu
+│   ├── order_service.py       # Obsługa logiki zamówień i płatności
+│   ├── stats_service.py       # Generowanie danych do wykresów/statystyk
+│   └── users_service.py       # Operacje na użytkownikach (rejestracja, lista, edycja)
+│
+├── templates/             # Szablony HTML renderowane przez Flask
+│   ├── add_user.html          # Formularz dodawania nowego użytkownika
+│   ├── edit_users.html        # Formularz edycji danych użytkownika
+│   ├── history.html           # Widok historii zamówień
+│   ├── login.html             # Formularz logowania
+│   ├── menu.html              # Widok pozycji z menu
+│   ├── order.html             # Widok zamówień z podziałem na stoliki i kategorie
+│   ├── register.html          # Formularz rejestracyjny
+│   ├── stats.html             # Panel statystyk restauracyjnych
+│   └── users.html             # Lista użytkowników (widok admina)
+│
+├── static/                # Pliki statyczne (style, JS, obrazki)
 │   ├── css/
-│   │   └── css.css - Własne style (opcjonalnie przy Bootstrapie).
-│   └── js/
-│       └── scripts.js - Skrypty JavaScript (np. dynamiczne akcje).
+│   │   └── css.css            # Globalny arkusz stylów css
+│   ├── favicon/               # Favicon
+│   └── images/                # Obrazy potraw, UI itp.
 
 Przykładowa trasa dla auth/auth_routes.py:
 ___________________________________
