@@ -94,26 +94,71 @@
       align-items: center;
       gap: 10px;
     }
+    aside {
+      width: 220px;
+      background: #f1f1f1;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .sidebar-content {
+      padding: 0px;
+      overflow-y: auto;
+    }
+
+    .logout-wrapper {
+      padding: 0 0px;
+      margin-bottom: 40px;
+    }
+
+    .logout {
+      display: block;
+      background-color: #dc3545;
+      color: white;
+      padding: 0px;
+      border-radius: 4px;
+      text-align: center;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <aside>
-    <h2>mKelner</h2>
-    <nav>
-      <a href="{{ url_for('menu_page') }}">Menu</a>
-      <a href="{{ url_for('order_page') }}">Zamówienia</a>
-      <a href="{{ url_for('users_page') }}" class="active">Użytkownicy</a>
-      <a href="{{ url_for('stats_page') }}">Statystyka</a>
-      <a href="{{ url_for('order_routes.history_page') }}">Historia Zamówień</a>
-    </nav>
-  </aside>
+   <aside>
+      <div class="sidebar-content">
+        <h2>mKelner</h2>
+        <nav class="nav-links">
+          <a href="{{ url_for('menu_page') }}">Menu</a>
+          {% if session['user']['role'] in ['Kelner', 'Admin'] %}
+            <a href="{{ url_for('order_page') }}">Zamówienia</a>
+            <a href="{{ url_for('stats_page') }}">Statystyka</a>
+            <a href="{{ url_for('order_routes.history_page') }}">Historia Zamówień</a>
+          {% endif %}
+          {% if session['user']['role'] == 'Admin' %}
+            <a href="{{ url_for('users_page') }}" class="{% if request.path == '/users' %}active{% endif %}">Użytkownicy</a>
+          {% endif %}
+        </nav>
+      </div>
+
+      <div class="logout-wrapper">
+        <div class="logged-user">
+          Zalogowano jako: <strong>{{ session['user']['login'] }}</strong>
+        </div>
+        <a href="/login.html" class="logout">Wyloguj się</a>
+      </div>
+    </aside>
+
 
   <main class="main">
   <div class="header-bar">
     <h1>Lista użytkowników</h1>
     <div class="actions-right">
       <input type="text" class="search-input" id="searchInput" placeholder="Szukaj użytkownika...">
-      <a href="{{ url_for('users_page') }}" class="btn btn-primary">Dodaj użytkownika</a>
+      <a href="{{ url_for('add_user_page') }}" class="btn btn-primary">Dodaj użytkownika</a>
     </div>
   </div>
 
@@ -184,10 +229,12 @@
     loadUsers();
     document.getElementById('searchInput').addEventListener('input', e => {
       const q = e.target.value.toLowerCase();
-      const filtered = usersData.filter(u => u.username.toLowerCase().includes(q));
+      const filtered = usersData.filter(u => u.login.toLowerCase().includes(q));
       renderUsers(filtered);
     });
   });
+
+ document.addEventListener('DOMContentLoaded', loadUsers);
 
 </script>
 </body>

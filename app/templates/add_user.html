@@ -1,0 +1,145 @@
+<!-- templates/add_user.html -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dodaj użytkownika</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/css.css') }}">
+  <style>
+    .btn { padding: 10px 20px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
+    .btn-primary { background-color: #28a745; color: #fff; }
+    .btn-secondary { background-color: #6c757d; color: white; text-decoration: none; display: inline-block; }
+    .form-container { display: flex; justify-content: center; margin-top: 2rem; }
+    .form { max-width: 600px; width: 100%; display: flex; flex-direction: column; }
+    .form label { margin: 12px 0 4px; font-weight: bold; }
+    .form input, .form select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    .btn-back { background-color: #6c757d; color: white; text-decoration: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; width: fit-content; margin-bottom: 20px; display: inline-block; }
+    .message { margin-top: 20px; color: green; text-align: center; }
+    aside {
+      width: 220px;
+      background: #f1f1f1;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .sidebar-content {
+      padding: 0px;
+      overflow-y: auto;
+    }
+
+    .logout-wrapper {
+      padding: 0 0px;
+      margin-bottom: 40px;
+    }
+
+    .logout {
+      display: block;
+      background-color: #dc3545;
+      color: white;
+      padding: 0px;
+      border-radius: 4px;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+     <aside>
+    <div class="sidebar-content">
+      <h2>mKelner</h2>
+      <nav class="nav-links">
+        <a href="{{ url_for('menu_page') }}">Menu</a>
+        {% if session['user']['role'] in ['Kelner', 'Admin'] %}
+          <a href="{{ url_for('order_page') }}">Zamówienia</a>
+          <a href="{{ url_for('stats_page') }}">Statystyka</a>
+          <a href="{{ url_for('order_routes.history_page') }}">Historia Zamówień</a>
+        {% endif %}
+        {% if session['user']['role'] == 'Admin' %}
+          <a href="{{ url_for('users_page') }}"  class="active">Użytkownicy</a>
+        {% endif %}
+      </nav>
+    </div>
+
+    <div class="logout-wrapper">
+      <div class="logged-user">
+        Zalogowano jako: <strong>{{ session['user']['login'] }}</strong>
+      </div>
+      <a href="/login.html" class="logout">Wyloguj się</a>
+    </div>
+  </aside>
+
+
+  <main class="main">
+    <h1>Dodaj użytkownika</h1>
+    <a href="/users" class="btn-back">← Powrót</a>
+
+    <form id="addForm" class="form-container">
+      <div class="form">
+        <label for="login">Login</label>
+        <input type="text" id="login" required>
+
+        <label for="password">Hasło</label>
+        <input type="password" id="password" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" required>
+
+        <label for="type">Typ konta</label>
+        <select id="type" required>
+          <option value="">Wybierz...</option>
+          <option value="Admin">Admin</option>
+          <option value="Kelner">Kelner</option>
+          <option value="Klient">Klient</option>
+        </select>
+
+        <label for="active">Aktywny</label>
+        <select id="active">
+          <option value="1">Tak</option>
+          <option value="0">Nie</option>
+        </select>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 20px;">Dodaj użytkownika</button>
+      </div>
+    </form>
+    <p class="message" id="msgBox"></p>
+    <p class="message" id="errorBox" style="color: red; text-align: center;"></p>
+  </main>
+
+  <script>
+    document.getElementById('addForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      document.getElementById('msgBox').innerText = '';
+      document.getElementById('errorBox').innerText = '';
+
+      const payload = {
+        login: document.getElementById('login').value,
+        password: document.getElementById('password').value,
+        email: document.getElementById('email').value,
+        role: document.getElementById('type').value,
+        active: parseInt(document.getElementById('active').value)
+      };
+
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        document.getElementById('msgBox').innerText = '✅ Użytkownik dodany';
+        document.getElementById('addForm').reset();
+      } else {
+        document.getElementById('errorBox').innerText = result.error || '❌ Wystąpił błąd';
+      }
+    });
+  </script>
+</body>
+</html>

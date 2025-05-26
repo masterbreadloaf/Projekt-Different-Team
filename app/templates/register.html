@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mKelner - Rejestracja</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/css.css') }}">
+</head>
+<body class="auth-page">
+  <div class="auth-container">
+    <div class="auth-header">
+      <div class="auth-logo">mKelner</div>
+      <h2>Rejestracja konta</h2>
+    </div>
+    
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="username">Nazwa użytkownika</label>
+        <input type="text" id="username" name="username" required placeholder="Wprowadź nazwę">
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="Wprowadź email">
+        <div class="error-message" id="emailError" style="display:none;">Email jest już zajęty</div>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Hasło</label>
+        <input type="password" id="password" name="password" required placeholder="Wprowadź hasło">
+      </div>
+      
+      <div class="form-group">
+        <label for="confirmPassword">Potwierdź hasło</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Powtórz hasło">
+        <div class="error-message" id="passwordError" style="display:none;">Hasła nie są identyczne</div>
+      </div>
+      
+      <button type="submit" class="btn">Zarejestruj się</button>
+    </form>
+    
+    <div class="auth-footer">
+      Masz już konto? <a href="login.html">Zaloguj się</a>
+    </div>
+    
+    <div class="success-message" id="registerSuccess" style="display:none;">
+      Rejestracja zakończona sukcesem! Przenoszenie do logowania...
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Ukryj stare błędy
+      document.getElementById('passwordError').style.display = 'none';
+      document.getElementById('emailError').style.display = 'none';
+
+      const login = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        document.getElementById('passwordError').style.display = 'block';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ login, email, password })
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          document.getElementById('registerSuccess').style.display = 'block';
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 2000);
+        } else {
+          document.getElementById('emailError').innerText = result.error;
+          document.getElementById('emailError').style.display = 'block';
+        }
+      } catch (err) {
+        console.error('Błąd rejestracji:', err);
+        alert('Wystąpił błąd połączenia z serwerem.');
+      }
+    });
+  </script>
+</body>
+</html>

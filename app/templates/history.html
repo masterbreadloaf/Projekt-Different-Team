@@ -6,19 +6,65 @@
   <title>mKelner - Historia zamówień</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/css.css') }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style type="text/css">
+  aside {
+      width: 220px;
+      background: #f1f1f1;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .sidebar-content {
+      padding: 0px;
+      overflow-y: auto;
+    }
+
+    .logout-wrapper {
+      padding: 0 0px;
+      margin-bottom: 40px;
+    }
+
+    .logout {
+      display: block;
+      background-color: #dc3545;
+      color: white;
+      padding: 0px;
+      border-radius: 4px;
+      text-align: center;
+      font-weight: bold;
+    }
+</style>
 </head>
 <body>
   <aside>
-    <h2>mKelner</h2>
-    <nav>
-      <a href="{{ url_for('menu_page') }}">Menu</a>
-      <a href="{{ url_for('order_page') }}">Zamówienia</a>
-      <a href="{{ url_for('users_page') }}">Użytkownicy</a>
-      <a href="{{ url_for('stats_page') }}">Statystyka</a>
-      <a href="{{ url_for('order_routes.history_page') }}" class="active">Historia Zamówień</a>
-    </nav>
-    <div class="tables" id="sideTables"></div>
-  </aside>
+      <div class="sidebar-content">
+        <h2>mKelner</h2>
+        <nav class="nav-links">
+          <a href="{{ url_for('menu_page') }}">Menu</a>
+          {% if session['user']['role'] in ['Kelner', 'Admin'] %}
+            <a href="{{ url_for('order_page') }}">Zamówienia</a>
+            <a href="{{ url_for('stats_page') }}">Statystyka</a>
+            <a href="{{ url_for('order_routes.history_page') }}" class="{% if request.path == '/history' %}active{% endif %}">Historia Zamówień</a>
+          {% endif %}
+          {% if session['user']['role'] == 'Admin' %}
+            <a href="{{ url_for('users_page') }}">Użytkownicy</a>
+          {% endif %}
+        </nav>
+      </div>
+
+      <div class="logout-wrapper">
+        <div class="logged-user">
+        Zalogowano jako: <strong>{{ session['user']['login'] }}</strong>
+      </div>
+        <a href="/login.html" class="logout">Wyloguj się</a>
+      </div>
+    </aside>
+
 
   <main class="main">
     <h1>Historia zamówień</h1>

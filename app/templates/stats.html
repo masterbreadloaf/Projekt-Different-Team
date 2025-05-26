@@ -38,20 +38,81 @@
       background: #007bff;
       transition: width 0.4s ease-in-out;
     }
+    aside {
+      width: 220px;
+      background: #f1f1f1;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .sidebar-content {
+      padding: 0px;
+      overflow-y: auto;
+    }
+
+    .logout-wrapper {
+      padding: 0 0px;
+      margin-bottom: 40px;
+    }
+
+    .logout {
+      display: block;
+      background-color: #dc3545;
+      color: white;
+      padding: 0px;
+      border-radius: 4px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .date-filter button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: bold;
+      background-color: #28a745;
+      color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      transition: background-color 0.3s ease, transform 0.1s ease;
+    }
+
+    .date-filter button:hover {
+      background-color: #218838;
+      transform: translateY(-1px);
+    }
 
   </style>
 </head>
 <body>
-  <aside>
-    <h2>mKelner</h2>
-    <nav>
-      <a href="{{ url_for('menu_page') }}">Menu</a>
-      <a href="{{ url_for('order_page') }}">Zamówienia</a>
-      <a href="{{ url_for('users_page') }}">Użytkownicy</a>
-      <a href="{{ url_for('stats_page') }}" class="active">Statystyka</a>
-      <a href="{{ url_for('order_routes.history_page') }}">Historia Zamówień</a>
-    </nav>
-  </aside>
+ <aside>
+      <div class="sidebar-content">
+        <h2>mKelner</h2>
+        <nav class="nav-links">
+          <a href="{{ url_for('menu_page') }}">Menu</a>
+          {% if session['user']['role'] in ['Kelner', 'Admin'] %}
+            <a href="{{ url_for('order_page') }}">Zamówienia</a>
+            <a href="{{ url_for('stats_page') }}" class="{% if request.path == '/stats' %}active{% endif %}">Statystyka</a>
+            <a href="{{ url_for('order_routes.history_page') }}">Historia Zamówień</a>
+          {% endif %}
+          {% if session['user']['role'] == 'Admin' %}
+            <a href="{{ url_for('users_page') }}">Użytkownicy</a>
+          {% endif %}
+        </nav>
+      </div>
+
+      <div class="logout-wrapper">
+        <div class="logged-user">
+        Zalogowano jako: <strong>{{ session['user']['login'] }}</strong>
+      </div>
+        <a href="/login.html" class="logout">Wyloguj się</a>
+      </div>
+    </aside>
+
 
   <main class="main">
     <div class="stats-header">
@@ -367,7 +428,7 @@
       type: 'matrix',
       data: {
         datasets: [{
-          label: 'Aktywność',
+          label: '',
           data: dataset,
           backgroundColor: ctx => backgroundColor(ctx.raw.v),
           borderWidth: 1,
@@ -390,6 +451,9 @@
           y: { type: 'category', labels: days }
         },
         plugins: {
+          legend:  {
+            display: false
+          },
           tooltip: {
             callbacks: {
               label: ctx => `Zamówienia: ${ctx.raw.v}`

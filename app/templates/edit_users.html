@@ -8,7 +8,7 @@
   <style>
     .btn { padding: 10px 20px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
     .btn-primary { background-color: #28a745; color: #fff; }
-    .btn-secondary { background-color: #6c757d; color: white; text-decoration: none; }
+    .btn-secondary { background-color: #6c757d; color: white; text-decoration: none; display: inline-block; }
     .btn-delete { background-color: #dc3545; color: white; margin-left: auto; }
     .message { margin-top: 10px; color: green; }
     .form-container {
@@ -46,22 +46,80 @@
       margin-top: 20px;
     }
 
+    .btn-back {
+      background-color: #6c757d;
+      color: white;
+      text-decoration: none;
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: bold;
+      margin: 10px 0 20px 0;
+      width: fit-content;
+    }
+    aside {
+      width: 220px;
+      background: #f1f1f1;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .sidebar-content {
+      padding: 0px;
+      overflow-y: auto;
+    }
+
+    .logout-wrapper {
+      padding: 0 0px;
+      margin-bottom: 40px;
+    }
+
+    .logout {
+      display: block;
+      background-color: #dc3545;
+      color: white;
+      padding: 0px;
+      border-radius: 4px;
+      text-align: center;
+      font-weight: bold;
+    }
+
   </style>
 </head>
 <body>
-  <aside>
-    <h2>mKelner</h2>
-    <nav>
-      <a href="{{ url_for('menu_page') }}">Menu</a>
-      <a href="{{ url_for('order_page') }}">Zamówienia</a>
-      <a href="{{ url_for('users_page') }}" class="active">Użytkownicy</a>
-      <a href="{{ url_for('stats_page') }}">Statystyka</a>
-      <a href="{{ url_for('order_routes.history_page') }}">Historia Zamówień</a>
-    </nav>
+   <aside>
+    <div class="sidebar-content">
+      <h2>mKelner</h2>
+      <nav class="nav-links">
+        <a href="{{ url_for('menu_page') }}">Menu</a>
+        {% if session['user']['role'] in ['Kelner', 'Admin'] %}
+          <a href="{{ url_for('order_page') }}">Zamówienia</a>
+          <a href="{{ url_for('stats_page') }}">Statystyka</a>
+          <a href="{{ url_for('order_routes.history_page') }}">Historia Zamówień</a>
+        {% endif %}
+        {% if session['user']['role'] == 'Admin' %}
+          <a href="{{ url_for('users_page') }}"  class="active">Użytkownicy</a>
+        {% endif %}
+      </nav>
+    </div>
+
+    <div class="logout-wrapper">
+      <div class="logged-user">
+        Zalogowano jako: <strong>{{ session['user']['login'] }}</strong>
+      </div>
+      <a href="/login.html" class="logout">Wyloguj się</a>
+    </div>
   </aside>
 
-  <main class="main">
+
+<main class="main">
   <h1>Edytuj użytkownika</h1>
+  <a href="/users" class="btn-back">← Powrót</a>
 
   <form id="editForm" class="form-container">
     <div class="form">
@@ -69,14 +127,13 @@
       <input type="text" id="login" required>
 
       <label for="password">Hasło</label>
-      <input type="text" id="password" required>
+      <input type="password" id="password" required>
 
       <label for="email">Email</label>
       <input type="email" id="email" required>
 
       <label for="type">Typ konta</label>
       <select id="type" required>
-        <option value="">Wybierz...</option>
         <option value="Admin">Admin</option>
         <option value="Kelner">Kelner</option>
         <option value="Klient">Klient</option>
@@ -89,67 +146,85 @@
       </select>
 
       <div class="btn-row">
-        <a href="/users" class="btn btn-secondary">Powrót</a>
+        <button type="submit" class="btn btn-primary" style="margin-right: auto;">Zapisz zmiany</button>
         <button type="button" class="btn btn-delete" onclick="deleteUser()">Usuń</button>
-        <button type="submit" class="btn btn-primary full-width">Zapisz zmiany</button>
       </div>
     </div>
   </form>
+  <center><p class="message" id="msgBox"></p></center>
+  <center><p class="message" id="errorBox" style="color: red;"></p></center>
+
 </main>
 
 
-  <script>
-    const id = window.location.pathname.split('/').pop();
+<script>
+  const id = window.location.pathname.split('/').pop();
 
-    async function loadUser() {
+  async function loadUser() {
+    try {
       const res = await fetch(`/api/users/${id}`);
-      const user = await res.json();
+      if (!res.ok) throw new Error('Błąd podczas ładowania użytkownika');
 
+      const user = await res.json();
       document.getElementById('login').value = user.login;
       document.getElementById('password').value = user.password;
       document.getElementById('email').value = user.email;
-      document.getElementById('type').value = user.type;
+      document.getElementById('type').value = user.role;
       document.getElementById('active').value = user.active ? '1' : '0';
+    } catch (err) {
+      document.getElementById('errorBox').innerText = '❌ Nie udało się załadować użytkownika';
     }
+  }
 
+  async function deleteUser() {
+    if (!confirm('Czy na pewno chcesz usunąć tego użytkownika?')) return;
+    const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
 
-    document.getElementById('editUserForm').addEventListener('submit', async (e) => {
+    if (res.ok) {
+      alert('✅ Użytkownik usunięty');
+      window.location.href = '/users';
+    } else {
+      alert('❌ Błąd przy usuwaniu użytkownika');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadUser();
+
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      document.getElementById('msgBox').innerText = '';
+      document.getElementById('errorBox').innerText = '';
+
       const payload = {
         id: parseInt(id),
         login: document.getElementById('login').value,
         password: document.getElementById('password').value,
         email: document.getElementById('email').value,
-        type: document.getElementById('type').value,
+        role: document.getElementById('type').value,
         active: parseInt(document.getElementById('active').value)
       };
 
-      const res = await fetch(`/api/users/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      try {
+        const res = await fetch(`/api/users/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
 
-      if (res.ok) {
-        document.getElementById('msgBox').innerText = '✅ Dane zaktualizowane';
-      } else {
-        document.getElementById('msgBox').innerText = '❌ Błąd aktualizacji danych';
+        const result = await res.json();
+
+        if (res.ok) {
+          document.getElementById('msgBox').innerText = '✅ Dane zaktualizowane';
+        } else {
+          document.getElementById('errorBox').innerText = result.error || '❌ Błąd aktualizacji danych';
+        }
+      } catch (err) {
+        document.getElementById('errorBox').innerText = '❌ Wystąpił problem z połączeniem';
       }
     });
+  });
+</script>
 
-    async function deleteUser() {
-      if (!confirm('Czy na pewno chcesz usunąć tego użytkownika?')) return;
-      const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
-
-      if (res.ok) {
-        alert('✅ Użytkownik usunięty');
-        window.location.href = '/users';
-      } else {
-        alert('❌ Błąd przy usuwaniu użytkownika');
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', loadUser);
-  </script>
 </body>
 </html>
